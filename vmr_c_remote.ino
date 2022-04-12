@@ -1,5 +1,4 @@
 #include <Bounce2.h>
-int x;
 
 const int D_PINS = 27; // number of pins  13
 const int DIGITAL_PINS[D_PINS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}; // pins buttons are connected to
