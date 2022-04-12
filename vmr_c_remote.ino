@@ -1,8 +1,8 @@
 #include <Bounce2.h>
 int x;
 
-const int D_PINS = 27; // number of pins
-const int DIGITAL_PINS[D_PINS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 32, 31, 30, 29, 33, 34, 35, 36, 37, 38, 39, 40, 41, 28}; // pins buttons are connected to
+const int D_PINS = 27; // number of pins  13
+const int DIGITAL_PINS[D_PINS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}; // pins buttons are connected to
 const int BOUNCE_TIME = 50;
 const int A = 25;
 const int B = 26;
@@ -55,37 +55,59 @@ void setup() {
     pinMode(DIGITAL_PINS[i], INPUT_PULLUP);
   }
 }
+
 void loop() {
-  if (dataLag != getAllData()) {
-    dataLag = getAllData();
-    Serial.println(getAllData());
+  String dataBuffer = "";
+  dataBuffer = getAllData(false);
+  if (dataLag != dataBuffer) {
+    dataLag = dataBuffer;
+    Serial.println(dataBuffer);
   }
 }
 
-String getAnalogData() {
+String getAnalogData(bool knobs) {
   int iterations = 50;
   int data[A_PINS] = {0};
   String dataString;
-  for (int i = 0; i < iterations; i++) {
-    for (int i = 0; i < 8; i++) {
-      digitalWrite(A, HIGH && (i & B00000001));
-      digitalWrite(B, HIGH && (i & B00000010));
-      digitalWrite(C, HIGH && (i & B00000100));
-      data[i] += analogRead(A0);
+  if (knobs) {
+    for (int i = 0; i < iterations; i++) {
+      for (int i = 0; i < 8; i++) {
+        digitalWrite(A, HIGH && (i & B00000001));
+        digitalWrite(B, HIGH && (i & B00000010));
+        digitalWrite(C, HIGH && (i & B00000100));
+        data[i] += analogRead(A0);
+      }
     }
-  }
-  for (int i = 0; i < iterations; i++) {
-    for (int i = 0; i < 6; i++) {
-      digitalWrite(A, HIGH && (i & B00000001));
-      digitalWrite(B, HIGH && (i & B00000010));
-      digitalWrite(C, HIGH && (i & B00000100));
-      data[i + 8] += analogRead(A1);
+    for (int i = 0; i < iterations; i++) {
+      for (int i = 0; i < 6; i++) {
+        digitalWrite(A, HIGH && (i & B00000001));
+        digitalWrite(B, HIGH && (i & B00000010));
+        digitalWrite(C, HIGH && (i & B00000100));
+        data[i + 8] += analogRead(A1);
+      }
     }
-  }
 
-  for (int i = 0; i < A_PINS; i++) {
-    data[i] /= iterations;
-    data[i] = map(data[i], 5, 1023, -60, 12);
+    for (int i = 0; i < A_PINS; i++) {
+      data[i] /= iterations;
+      data[i] = map(data[i], 0, 1023, -60, 12);
+    }
+  }
+  else if (!knobs) 
+  {
+    for (int i = 0; i < iterations; i++) {
+      for (int i = 0; i < 6; i++) {
+        digitalWrite(A, HIGH && (i & B00000001));
+        digitalWrite(B, HIGH && (i & B00000010));
+        digitalWrite(C, HIGH && (i & B00000100));
+        data[i + 8] += analogRead(A1);
+      }
+    }
+
+    for (int i = 0; i < A_PINS; i++) {
+      data[i] /= iterations;
+      data[i] = map(data[i], 10, 1000, -60, 12);
+      data[i] = constrain(data[i], -60, 12);
+    }
   }
 
   for (int i = 0; i < A_PINS; i++) {
@@ -119,8 +141,8 @@ String getDigitalData() {
   return dataString;
 }
 
-String getAllData() {
+String getAllData(bool knobs) {
   String dataString;
-  dataString = getAnalogData() + ',' + getDigitalData();
+  dataString = getAnalogData(knobs) + ',' + getDigitalData();
   return dataString;
 }
