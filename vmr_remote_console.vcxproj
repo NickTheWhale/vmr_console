@@ -139,9 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SerialPort.cpp" />
     <ClCompile Include="vmr_remote_console.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SerialPort.hpp" />
     <ClInclude Include="VoicemeeterRemote.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

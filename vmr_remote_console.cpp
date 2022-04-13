@@ -7,11 +7,34 @@
 #endif
 #endif
 
+
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
 #include "VoicemeeterRemote.h"
 #include <string>
+#include "SerialPort.hpp"
+#include <sstream>
+#include <vector>
+#include <algorithm>
+
+#define DATA_LENGTH 255
+
+const char* portName = "\\\\.\\COM7";
+
+char strips[8][14] = {
+	"Strip[0].gain",
+	"Strip[1].gain",
+	"Strip[2].gain",
+	"Strip[3].gain",
+	"Strip[4].gain",
+	"Strip[5].gain",
+	"Strip[6].gain",
+	"Strip[7].gain"
+};
+
+//Declare a global object
+SerialPort* arduino;
 
 using namespace std;
 
@@ -310,65 +333,111 @@ int setParameters(char* param)
 int setParameterFloat(char* param, float val)
 {
 	int ret = iVMR.VBVMR_SetParameterFloat(param, val);
-	waitForUpdate();
+	//waitForUpdate();
 	return ret;
 }
 
+int initArduino()
+{
+	arduino = new SerialPort(portName);
+	return arduino->isConnected();
+}
 
+string getData() {
+	char receivedString[DATA_LENGTH];
+	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
+	string dataString = receivedString;
+	int dataSize = dataString.size();
+	if (dataSize >= 2)
+	{
+		dataString.erase(dataString.size() - 2);
+	}
+	return dataString;
+}
+
+
+/*******************************************************************************/
+/**                                    MAIN                                   **/
+/*******************************************************************************/
 
 int main()
 {
-    cout << "Voicemeeter remote\n";
+	cout << "Voicemeeter remote\n";
 	if (initVoicemeeter())
 	{
 		cout << "Communication established with Voicemeeter\n";
-		char param1[14] = "Strip[0].gain";
-		char param2[14] = "Strip[1].gain";
-		char param3[14] = "Strip[2].gain";
-		char param4[14] = "Strip[3].gain";
-		char param5[14] = "Strip[4].gain";
-		char param6[14] = "Strip[5].gain";
-		char param7[14] = "Strip[6].gain";
-		char param8[14] = "Strip[7].gain";
-		float val;
+		if (initArduino())
+		{
+			cout << "Communication established with Arduino\n";
+			
 			while (1)
-			{
-				for (int i = -60; i <= 12; i++)
-				{
-					val = float(i);
-					iVMR.VBVMR_SetParameterFloat(param1, val);
-					iVMR.VBVMR_SetParameterFloat(param2, val);
-					iVMR.VBVMR_SetParameterFloat(param3, val);
-					iVMR.VBVMR_SetParameterFloat(param4, val);
-					iVMR.VBVMR_SetParameterFloat(param5, val);
-					iVMR.VBVMR_SetParameterFloat(param6, val);
-					iVMR.VBVMR_SetParameterFloat(param7, val);
-					iVMR.VBVMR_SetParameterFloat(param8, val);
+			{	
+				string dataString = getData();
+				int dataSize = dataString.size();
+				if (dataSize != 0)
+				{	
+					string dCopy = dataString;
+					
+					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
+					
+					int dCopySize = dCopy.size();
+					
+					vector<string>dataVect;
+
+					dataVect.resize(dCopySize+1);
+
+					int vectIndex = 0;
+					int stringIndex = 0;
+					string dataBuff;
+					//cout << "data string: " << dataString << "\n";
+					while (stringIndex < dataSize)
+					{
+						if (dataString[stringIndex] != ',')
+						{
+							dataBuff += dataString[stringIndex];
+						}
+						else
+						{
+							dataVect[vectIndex] = dataBuff;
+							dataBuff.clear();
+							vectIndex++;
+						}
+						stringIndex++;
+						//cout << "vector index: " << vectIndex << "    string index: " << stringIndex << "    size: " << dataSize << "\n";
+					}
+
+					for (int i = 0; i < dataVect.size(); i++)
+					{
+						cout << dataVect[i];
+					}
+					cout << "\n";
+					setParameterFloat(strips[0], stoi(dataVect[8]));
+					setParameterFloat(strips[1], stoi(dataVect[9]));
+					setParameterFloat(strips[2], stoi(dataVect[10]));
+					setParameterFloat(strips[3], stoi(dataVect[11]));
+					setParameterFloat(strips[4], stoi(dataVect[12]));
+					setParameterFloat(strips[5], stoi(dataVect[13]));
 					waitForUpdate();
 				}
-
-				for (int i = 12; i >= -60; i--)
+				else
 				{
-					val = float(i);
-					iVMR.VBVMR_SetParameterFloat(param1, val);
-					iVMR.VBVMR_SetParameterFloat(param2, val);
-					iVMR.VBVMR_SetParameterFloat(param3, val);
-					iVMR.VBVMR_SetParameterFloat(param4, val);
-					iVMR.VBVMR_SetParameterFloat(param5, val);
-					iVMR.VBVMR_SetParameterFloat(param6, val);
-					iVMR.VBVMR_SetParameterFloat(param7, val);
-					iVMR.VBVMR_SetParameterFloat(param8, val);
-					waitForUpdate();
+					Sleep(1);
 				}
 			}
+		}
 	}
 	else
 	{
 		cout << "Error establishing connection with Voicemeeter\n";
 	}
-
+	arduino->closeSerial();
 	iVMR.VBVMR_Logout();
 }
+
+
+//char param1[14] = "Strip[0].gain";
+//float val = 5;
+//setParameterFloat(param1, val);
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

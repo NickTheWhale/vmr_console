@@ -18,9 +18,15 @@
     <ClCompile Include="vmr_remote_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SerialPort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VoicemeeterRemote.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialPort.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
