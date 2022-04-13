@@ -57,15 +57,16 @@ void setup() {
 
 void loop() {
   String dataBuffer = "";
-  dataBuffer = getAllData(false);
+  dataBuffer = getAllData(true);
   if (dataLag != dataBuffer) {
     dataLag = dataBuffer;
     Serial.println(dataBuffer);
   }
 }
 
+
 String getAnalogData(bool knobs) {
-  int iterations = 50;
+  int iterations = 100;
   int data[A_PINS] = {0};
   String dataString;
   if (knobs) {
@@ -88,7 +89,8 @@ String getAnalogData(bool knobs) {
 
     for (int i = 0; i < A_PINS; i++) {
       data[i] /= iterations;
-      data[i] = map(data[i], 0, 1023, -60, 12);
+      data[i] = map(data[i], 20, 1010, -60, 12);
+      data[i] = constrain(data[i], -60, 12);
     }
   }
   else if (!knobs) 
@@ -104,7 +106,7 @@ String getAnalogData(bool knobs) {
 
     for (int i = 0; i < A_PINS; i++) {
       data[i] /= iterations;
-      data[i] = map(data[i], 10, 1000, -60, 12);
+      data[i] = map(data[i], 20, 1010, -60, 12);
       data[i] = constrain(data[i], -60, 12);
     }
   }
