@@ -315,6 +315,43 @@ string getVersion()
 	verString += to_string(ver);
 	return to_string(ver);
 }
+/*
+void ManageInfoBox(HWND hw)
+{
+	long rep, vmType, vmVersion, v1, v2, v3, v4;
+	char title[] = "Server Info...";
+	char message[512];
+	char sz[128];
+
+	//get Voicemeeter Program Type
+	strcpy(message, "Server Name: ");
+	rep = iVMR.VBVMR_GetVoicemeeterType(&vmType);
+	if (rep == 0)
+	{
+		if (vmType == 1) strcat(message, "Voicemeeter");
+		if (vmType == 2) strcat(message, "Voicemeeter Banana");
+		if (vmType == 3) strcat(message, "Voicemeeter Potato");
+	}
+	else strcat(message, "-not connected-");
+	strcat(message, "\nVersion: ");
+
+	//get Voicemeeter Version
+	rep = iVMR.VBVMR_GetVoicemeeterVersion(&vmVersion);
+	if (rep == 0)
+	{
+		v1 = (vmVersion & 0xFF000000) >> 24;
+		v2 = (vmVersion & 0x00FF0000) >> 16;
+		v3 = (vmVersion & 0x0000FF00) >> 8;
+		v4 = vmVersion & 0x000000FF;
+		sprintf(sz, "%i.%i.%i.%i", v1, v2, v3, v4);
+		strcat(message, sz);
+	}
+	else strcat(message, "-unknown-");
+	strcat(message, "\n");
+
+	MessageBox(hw, message, title, MB_APPLMODAL | MB_OK | MB_ICONINFORMATION);
+}
+*/
 
 long getType()
 {
@@ -384,12 +421,12 @@ int main()
 					
 					vector<string>dataVect;
 
-					dataVect.resize(dCopySize+1);
+					dataVect.resize(dCopySize);
 
 					int vectIndex = 0;
 					int stringIndex = 0;
 					string dataBuff;
-					//cout << "data string: " << dataString << "\n";
+
 					while (stringIndex < dataSize)
 					{
 						if (dataString[stringIndex] != ',')
@@ -403,21 +440,23 @@ int main()
 							vectIndex++;
 						}
 						stringIndex++;
-						//cout << "vector index: " << vectIndex << "    string index: " << stringIndex << "    size: " << dataSize << "\n";
+						cout << "vector index: " << vectIndex << " string index: " << stringIndex << " size: " << dataSize << " vect size: " << dataVect.size() << " dcopy size: " << dCopySize << "\n";
 					}
 
-					for (int i = 0; i < dataVect.size(); i++)
+					for (int i = 0; i < dCopySize; i++)
 					{
 						cout << dataVect[i];
 					}
+					//cout << dataVect[dataVect.size() - 1];
 					cout << "\n";
-					setParameterFloat(strips[0], stoi(dataVect[8]));
-					setParameterFloat(strips[1], stoi(dataVect[9]));
-					setParameterFloat(strips[2], stoi(dataVect[10]));
-					setParameterFloat(strips[3], stoi(dataVect[11]));
-					setParameterFloat(strips[4], stoi(dataVect[12]));
-					setParameterFloat(strips[5], stoi(dataVect[13]));
-					waitForUpdate();
+
+					//setParameterFloat(strips[0], stoi(dataVect[8]));
+					//setParameterFloat(strips[1], stoi(dataVect[9]));
+					//setParameterFloat(strips[2], stoi(dataVect[10]));
+					//setParameterFloat(strips[3], stoi(dataVect[11]));
+					//setParameterFloat(strips[4], stoi(dataVect[12]));
+					//setParameterFloat(strips[5], stoi(dataVect[13]));
+					//waitForUpdate();
 				}
 				else
 				{
