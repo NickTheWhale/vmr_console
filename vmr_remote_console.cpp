@@ -20,7 +20,7 @@
 
 #define DATA_LENGTH 255
 
-const char* portName = "\\\\.\\COM7";
+const char* portName = "\\\\.\\COM18";
 
 char strips[8][14] = {
 	"Strip[0].gain",
@@ -440,23 +440,28 @@ int main()
 							vectIndex++;
 						}
 						stringIndex++;
-						cout << "vector index: " << vectIndex << " string index: " << stringIndex << " size: " << dataSize << " vect size: " << dataVect.size() << " dcopy size: " << dCopySize << "\n";
+						//cout << "vector index: " << vectIndex << " string index: " << stringIndex << " size: " << dataSize << " vect size: " << dataVect.size() << " dcopy size: " << dCopySize << "\n";
 					}
 
-					for (int i = 0; i < dCopySize; i++)
+					for (int i = 0; i < dataVect.size(); i++)
 					{
 						cout << dataVect[i];
 					}
+
 					//cout << dataVect[dataVect.size() - 1];
 					cout << "\n";
 
-					//setParameterFloat(strips[0], stoi(dataVect[8]));
-					//setParameterFloat(strips[1], stoi(dataVect[9]));
-					//setParameterFloat(strips[2], stoi(dataVect[10]));
-					//setParameterFloat(strips[3], stoi(dataVect[11]));
-					//setParameterFloat(strips[4], stoi(dataVect[12]));
-					//setParameterFloat(strips[5], stoi(dataVect[13]));
-					//waitForUpdate();
+					try 
+					{
+						setParameterFloat(strips[0], stoi(dataVect[8]));
+						setParameterFloat(strips[1], stoi(dataVect[9]));
+						setParameterFloat(strips[2], stoi(dataVect[10]));
+						setParameterFloat(strips[3], stoi(dataVect[11]));
+						setParameterFloat(strips[4], stoi(dataVect[12]));
+						setParameterFloat(strips[5], stoi(dataVect[13]));
+					}
+					catch (...) {}
+					waitForUpdate();
 				}
 				else
 				{
