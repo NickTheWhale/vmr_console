@@ -369,22 +369,24 @@ int main()
 		if (initArduino())
 		{
 			cout << "Communication established with Arduino\n";
+
+			vector<string>dataVect;
 			
 			while (1)
 			{	
 				string dataString = getData();
 				int dataSize = dataString.size();
 				if (dataSize != 0)
-				{	
+				{
+					//vector<string>dataVect;
+					
 					string dCopy = dataString;
 					
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
 					
 					int dCopySize = dCopy.size();
-					
-					vector<string>dataVect;
 
-					dataVect.resize(dCopySize+1);
+					dataVect.resize(dCopySize);
 
 					int vectIndex = 0;
 					int stringIndex = 0;
@@ -423,7 +425,10 @@ int main()
 						setParameterFloat(strips[4], stoi(dataVect[12]));
 						setParameterFloat(strips[5], stoi(dataVect[13]));
 					}
-					catch (...) {}
+					catch (...) 
+					{
+						cout << "caught an error\n";
+					}
 					waitForUpdate();
 				}
 				else
