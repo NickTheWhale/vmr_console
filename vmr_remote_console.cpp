@@ -21,7 +21,7 @@
 #include "serial.h"
 
 
-#define DATA_LENGTH 255
+#define DATA_LENGTH 1023
 
 const char* portName = "\\\\.\\COM18";
 
@@ -377,7 +377,24 @@ string getData()
 	{
 		dataString.erase(dataString.size() - 2);
 	}
-	return dataString;
+	int first = dataString.find('<');
+	int last = dataString.find('>');
+	if (first >= 0 && last >= 0)
+	{
+		try
+		{
+			dataString = dataString.substr(first + 1, last - first - 1);
+		}
+		catch (...)
+		{
+			cout << "error:    first: " << first << " last: " << last << endl;
+		}
+		return dataString;
+	}
+	else
+	{
+		return "";
+	}
 }
 
 int sendData(const char* message)
@@ -418,8 +435,6 @@ int main()
 					//get size of datastring, ignoring commas
 					string dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '<'), dCopy.end());
-					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '>'), dCopy.end());
 					int dCopySize = dCopy.size();
 					dataVect.resize(dCopySize);
 
@@ -430,7 +445,7 @@ int main()
 					//fill vector with datastring
 					while (stringIndex < dataSize)
 					{
-						if (dataString[stringIndex] != ',' && dataString[stringIndex] != '<' && dataString[stringIndex] != '>')
+						if (dataString[stringIndex] != ',')
 						{
 							dataBuff += dataString[stringIndex];
 						}
