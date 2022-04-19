@@ -280,17 +280,17 @@ int initVoicemeeter()
 	if (rep != 0)
 	{
 		cout << "Error logging into Voicemeeter\n";
-		if (rep == 1) 
+		if (rep == 1)
 		{
 			cout << "Attempting to launch Voicemeeter\n";
 			int attempts = 0;
 			int isRunning = 1;
-			while (attempts < 5 && isRunning != 0) 
+			while (attempts < 5 && isRunning != 0)
 			{
 				isRunning = iVMR.VBVMR_RunVoicemeeter(3);
 				attempts++;
 			}
-			if (isRunning == 0) 
+			if (isRunning == 0)
 			{
 				return TRUE;
 			}
@@ -314,7 +314,7 @@ void waitForUpdate()
 }
 
 string getVersion()
-{	
+{
 	long ver;
 	string verString;
 	iVMR.VBVMR_GetVoicemeeterVersion(&ver);
@@ -367,7 +367,7 @@ void enumerate_ports()
 	}
 }
 
-string getData() 
+string getData()
 {
 	char receivedString[DATA_LENGTH];
 	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
@@ -381,7 +381,7 @@ string getData()
 }
 
 int sendData(const char* message)
-{	
+{
 	bool hasWritten = arduino->writeSerialPort(message, DATA_LENGTH);
 	return hasWritten;
 }
@@ -409,15 +409,15 @@ int main()
 			enumerate_ports();
 
 			while (1)
-			{	
+			{
 				string dataString = getData();
 				int dataSize = dataString.size();
 
 				if (dataSize != 0)
-				{	
+				{
 					//get size of datastring, ignoring commas
 					string dCopy = dataString;
-					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());	
+					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
 					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '<'), dCopy.end());
 					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '>'), dCopy.end());
 					int dCopySize = dCopy.size();
@@ -450,7 +450,7 @@ int main()
 
 					cout << "\n";
 
-					try 
+					try
 					{
 						//setParameterFloat(strips[0], stoi(dataVect[8]));
 						setParameterFloat(strips[1], stoi(dataVect[9]));
@@ -459,7 +459,7 @@ int main()
 						//setParameterFloat(strips[4], stoi(dataVect[12]));
 						//setParameterFloat(strips[5], stoi(dataVect[13]));
 					}
-					catch (...) 
+					catch (...)
 					{
 						cout << "Error setting parameters\n";
 					}
