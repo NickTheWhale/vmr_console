@@ -42,6 +42,7 @@ using std::vector;
 using std::cout;
 using std::to_string;
 using std::cerr;
+using std::endl;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -348,7 +349,8 @@ int initArduino()
 	return arduino->isConnected();
 }
 
-string getData() {
+string getData() 
+{
 	char receivedString[DATA_LENGTH];
 	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	string dataString = receivedString;
@@ -362,7 +364,6 @@ string getData() {
 
 int sendData(const char* message)
 {	
-
 	bool hasWritten = arduino->writeSerialPort(message, DATA_LENGTH);
 	return hasWritten;
 }
@@ -396,7 +397,9 @@ int main()
 				{	
 					//get size of datastring, ignoring commas
 					string dCopy = dataString;
-					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());				
+					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());	
+					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '<'), dCopy.end());
+					//dCopy.erase(remove(dCopy.begin(), dCopy.end(), '>'), dCopy.end());
 					int dCopySize = dCopy.size();
 					dataVect.resize(dCopySize);
 
@@ -407,7 +410,7 @@ int main()
 					//fill vector with datastring
 					while (stringIndex < dataSize)
 					{
-						if (dataString[stringIndex] != ',')
+						if (dataString[stringIndex] != ',' && dataString[stringIndex] != '<' && dataString[stringIndex] != '>')
 						{
 							dataBuff += dataString[stringIndex];
 						}
