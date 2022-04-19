@@ -441,7 +441,6 @@ int main()
 					}
 					catch (...) 
 					{
-						cerr << "Error setting parameters\n";
 						cout << "Error setting parameters\n";
 					}
 					waitForUpdate();
