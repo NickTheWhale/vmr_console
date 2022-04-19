@@ -11,6 +11,8 @@ bool dData[D_PINS] = {0};
 
 String dataLag = "";
 
+#define MAX_MESSAGE_LENGTH 255
+
 Bounce digital[] =   {
   Bounce(DIGITAL_PINS[0], BOUNCE_TIME),
   Bounce(DIGITAL_PINS[1], BOUNCE_TIME),
@@ -93,7 +95,7 @@ String getAnalogData(bool knobs) {
       data[i] = constrain(data[i], -60, 12);
     }
   }
-  else if (!knobs) 
+  else if (!knobs)
   {
     for (int i = 0; i < iterations; i++) {
       for (int i = 0; i < 6; i++) {
@@ -146,4 +148,30 @@ String getAllData(bool knobs) {
   String dataString;
   dataString = getAnalogData(knobs) + ',' + getDigitalData();
   return dataString;
+}
+
+void receiveData() {
+  if (Serial.available() > 0) {
+
+    static char message[MAX_MESSAGE_LENGTH];
+    static unsigned int message_pos = 0;
+
+    char inByte = Serial.read();
+
+    if ( inByte != '\n' && (message_pos < MAX_MESSAGE_LENGTH - 1) ) {
+
+      message[message_pos] = inByte;
+      message_pos++;
+    }
+
+    else {
+
+      message[message_pos] = '\0';
+
+      Serial.println(message);
+
+      message_pos = 0;
+    }
+  }
+  Serial.flush();
 }
