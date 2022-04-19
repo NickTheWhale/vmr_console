@@ -72,9 +72,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\loehr\source\repos\vmr_remote_console;C:\Users\loehr\source\repos\vmr_remote_console;$(IncludePath)</IncludePath>
+    <SourcePath>C:\Users\loehr\source\repos\vmr_remote_console;C:\Users\loehr\source\repos\vmr_remote_console;$(SourcePath)</SourcePath>
+    <ExternalIncludePath>C:\Users\loehr\source\repos\vmr_remote_console;C:\Users\loehr\source\repos\vmr_remote_console;$(ExternalIncludePath)</ExternalIncludePath>
+    <ReferencePath>C:\Users\loehr\source\repos\vmr_remote_console;C:\Users\loehr\source\repos\vmr_remote_console;$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Users\loehr\source\repos\vmr_remote_console;C:\Users\loehr\source\repos\vmr_remote_console;$(LibraryPath)</LibraryPath>
+    <LibraryWPath>C:\Users\loehr\source\repos\vmr_remote_console;$(LibraryWPath)</LibraryWPath>
+    <PublicIncludeDirectories>
+    </PublicIncludeDirectories>
+    <ExecutablePath>C:\Users\loehr\source\repos\vmr_remote_console;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\loehr\source\repos\vmr_remote_console;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <ExternalIncludePath>C:\Users\loehr\source\repos\vmr_remote_console;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+    <ReferencePath>C:\Users\loehr\source\repos\vmr_remote_console;$(VC_ReferencesPath_x86);</ReferencePath>
+    <LibraryPath>C:\Users\loehr\source\repos\vmr_remote_console;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <SourcePath>C:\Users\loehr\source\repos\vmr_remote_console;$(VC_SourcePath);</SourcePath>
+    <LibraryWPath>C:\Users\loehr\source\repos\vmr_remote_console;$(LibraryWPath)</LibraryWPath>
+    <PublicIncludeDirectories>
+    </PublicIncludeDirectories>
+    <ExecutablePath>C:\Users\loehr\source\repos\vmr_remote_console;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -88,6 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\loehr\source\repos\vmr_remote_console;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,12 +158,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="list_ports_win.cc" />
+    <ClCompile Include="serial.cc" />
     <ClCompile Include="SerialPort.cpp" />
+    <ClCompile Include="unix.cc" />
     <ClCompile Include="vmr_remote_console.cpp" />
+    <ClCompile Include="win.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="serial.h" />
     <ClInclude Include="SerialPort.hpp" />
+    <ClInclude Include="v8stdint.h" />
     <ClInclude Include="VoicemeeterRemote.h" />
+    <ClInclude Include="win.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

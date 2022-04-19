@@ -18,6 +18,8 @@
 #include <vector>
 #include <algorithm>
 #include <thread>
+#include "serial.h"
+
 
 #define DATA_LENGTH 255
 
@@ -43,6 +45,7 @@ using std::cout;
 using std::to_string;
 using std::cerr;
 using std::endl;
+using std::exception;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -349,6 +352,21 @@ int initArduino()
 	return arduino->isConnected();
 }
 
+void enumerate_ports()
+{
+	vector<serial::PortInfo> devices_found = serial::list_ports();
+
+	vector<serial::PortInfo>::iterator iter = devices_found.begin();
+
+	while (iter != devices_found.end())
+	{
+		serial::PortInfo device = *iter++;
+
+		printf("(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(),
+			device.hardware_id.c_str());
+	}
+}
+
 string getData() 
 {
 	char receivedString[DATA_LENGTH];
@@ -387,7 +405,9 @@ int main()
 			cout << "Communication established with Arduino\n";
 
 			vector<string>dataVect;
-			
+
+			enumerate_ports();
+
 			while (1)
 			{	
 				string dataString = getData();
