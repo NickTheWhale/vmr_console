@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 #define DATA_LENGTH 255
 
@@ -36,7 +37,11 @@ char strips[8][14] = {
 //Declare a global object
 SerialPort* arduino;
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::cout;
+using std::to_string;
+using std::cerr;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -355,6 +360,13 @@ string getData() {
 	return dataString;
 }
 
+int sendData(const char* message)
+{	
+
+	bool hasWritten = arduino->writeSerialPort(message, DATA_LENGTH);
+	return hasWritten;
+}
+
 
 /*******************************************************************************/
 /**                                    MAIN                                   **/
@@ -368,6 +380,9 @@ int main()
 		cout << "Communication established with Voicemeeter\n";
 		if (initArduino())
 		{
+			//thread t1(getData);
+			//t1.join();
+
 			cout << "Communication established with Arduino\n";
 
 			vector<string>dataVect;
@@ -376,6 +391,7 @@ int main()
 			{	
 				string dataString = getData();
 				int dataSize = dataString.size();
+
 				if (dataSize != 0)
 				{
 					//vector<string>dataVect;
@@ -405,7 +421,6 @@ int main()
 							vectIndex++;
 						}
 						stringIndex++;
-						//cout << "vector index: " << vectIndex << " string index: " << stringIndex << " size: " << dataSize << " vect size: " << dataVect.size() << " dcopy size: " << dCopySize << "\n";
 					}
 
 					for (int i = 0; i < dCopySize; i++)
@@ -413,7 +428,6 @@ int main()
 						cout << dataVect[i];
 					}
 
-					//cout << dataVect[dataVect.size() - 1];
 					cout << "\n";
 
 					try 
