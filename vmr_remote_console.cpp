@@ -393,21 +393,18 @@ int main()
 				int dataSize = dataString.size();
 
 				if (dataSize != 0)
-				{
-					//vector<string>dataVect;
-					
+				{	
+					//get size of datastring, ignoring commas
 					string dCopy = dataString;
-					
-					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					
+					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());				
 					int dCopySize = dCopy.size();
-
 					dataVect.resize(dCopySize);
 
 					int vectIndex = 0;
 					int stringIndex = 0;
 					string dataBuff;
-					//cout << "data string: " << dataString << "\n";
+
+					//fill vector with datastring
 					while (stringIndex < dataSize)
 					{
 						if (dataString[stringIndex] != ',')
@@ -432,16 +429,17 @@ int main()
 
 					try 
 					{
-						setParameterFloat(strips[0], stoi(dataVect[8]));
+						//setParameterFloat(strips[0], stoi(dataVect[8]));
 						setParameterFloat(strips[1], stoi(dataVect[9]));
-						setParameterFloat(strips[2], stoi(dataVect[10]));
-						setParameterFloat(strips[3], stoi(dataVect[11]));
-						setParameterFloat(strips[4], stoi(dataVect[12]));
-						setParameterFloat(strips[5], stoi(dataVect[13]));
+						//setParameterFloat(strips[2], stoi(dataVect[10]));
+						//setParameterFloat(strips[3], stoi(dataVect[11]));
+						//setParameterFloat(strips[4], stoi(dataVect[12]));
+						//setParameterFloat(strips[5], stoi(dataVect[13]));
 					}
 					catch (...) 
 					{
-						cout << "caught an error\n";
+						cerr << "Error setting parameters\n";
+						cout << "Error setting parameters\n";
 					}
 					waitForUpdate();
 				}
