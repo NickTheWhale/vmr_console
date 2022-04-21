@@ -457,15 +457,13 @@ int main()
 						}
 						stringIndex++;
 					}
-					if (DEBUG)
+
+					for (int i = 0; i < dCopySize; i++)
 					{
-						for (int i = 0; i < dCopySize; i++)
-						{
-							cout << dataVect[i];
-						}
-						cout << "\n";
+						cout << dataVect[i];
 					}
 
+					cout << "\n";
 
 					//try
 					//{
