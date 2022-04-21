@@ -10,8 +10,11 @@ const int A_PINS = 14;
 bool dData[D_PINS] = {0};
 
 String dataLag = "";
+unsigned long previousTime;
 
 #define MAX_MESSAGE_LENGTH 255
+#define ITERATIONS 50           //number of analog readings
+#define INTERVAL 10             //interval in milliseconds to send data
 
 Bounce digital[] =   {
   Bounce(DIGITAL_PINS[0], BOUNCE_TIME),
@@ -45,16 +48,30 @@ Bounce digital[] =   {
 
 void setup() {
   Serial.begin(115200);
-  Serial.setTimeout(1);
 
   pinMode(A, OUTPUT);
   pinMode(B, OUTPUT);
   pinMode(C, OUTPUT);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
+
   for (int i = 0; i < D_PINS; i++) {
     pinMode(DIGITAL_PINS[i], INPUT_PULLUP);
   }
+
+  bool consoleReady = false;
+  String incomingMessage;
+  while (!consoleReady) {
+    if (Serial.available() > 0) {
+      incomingMessage = Serial.read();
+      if (incomingMessage == "r") {
+        consoleReady = true;
+      }
+    }
+    Serial.flush();
+  }
+  
+  previousTime = millis();
 }
 
 void loop() {
@@ -62,13 +79,18 @@ void loop() {
   dataBuffer = getAllData(true);
   if (dataLag != dataBuffer) {
     dataLag = dataBuffer;
-    Serial.println(dataBuffer);
+    Serial.print(dataBuffer);
+    Serial.println();
   }
+//  if (millis() - INTERVAL > previousTime){
+//    Serial.print(dataBuffer);
+//    Serial.println();
+//  }
 }
 
 
 String getAnalogData(bool knobs) {
-  int iterations = 100;
+  int iterations = ITERATIONS;
   int data[A_PINS] = {0};
   String dataString;
   if (knobs) {
@@ -146,7 +168,8 @@ String getDigitalData() {
 
 String getAllData(bool knobs) {
   String dataString;
-  dataString = getAnalogData(knobs) + ',' + getDigitalData();
+  dataString = '<' + getAnalogData(knobs) + ',' + getDigitalData() + '>';
+  //dataString = getAnalogData(knobs) + ',' + getDigitalData();
   return dataString;
 }
 
