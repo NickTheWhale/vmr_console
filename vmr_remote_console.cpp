@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <thread>
 #include "serial.h"
-#include <chrono>
 
 
 #define DATA_LENGTH 1023
@@ -313,31 +312,8 @@ int initVoicemeeter()
 	return TRUE;
 }
 
-int waitForUpdate(int timeout)
-{
-	unsigned __int64 previousTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	unsigned __int64 currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-	while (currentTime - timeout < previousTime)
-	{
-		if (!iVMR.VBVMR_IsParametersDirty())
-		{
-			Sleep(10);
-		}
-		if (iVMR.VBVMR_IsParametersDirty())
-		{
-			Sleep(10);
-		}
-		Sleep(10);
-		currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	}
-	cout << "times up" << endl;
-	return 0;
-}
-
 void waitForUpdate()
 {
-
 	while (!iVMR.VBVMR_IsParametersDirty())
 	{
 		Sleep(10);
@@ -409,12 +385,12 @@ string getData()
 	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	string dataString = receivedString;
 	int dataSize = dataString.size();
-	/*if (dataSize >= 2)
+	if (dataSize >= 2)
 	{
 		dataString.erase(dataString.size() - 2);
-	}*/
-	int first = dataString.find_last_of('<');
-	int last = dataString.find_last_of('>');
+	}
+	int first = dataString.find('<');
+	int last = dataString.find('>');
 	if (first >= 0 && last >= 0)
 	{
 		try
@@ -435,16 +411,10 @@ string getData()
 
 int sendData(const char* message)
 {
-	string message_str = string(message);
-	int data_size = message_str.size();
-	bool hasWritten = arduino->writeSerialPort(message, data_size);
+	bool hasWritten = arduino->writeSerialPort(message, DATA_LENGTH);
 	return hasWritten;
 }
 
-int sendReadyMessage()
-{
-	return sendData("r");
-}
 
 int sendAliveMessage()
 {
@@ -455,8 +425,6 @@ int sendAliveMessage()
 /**                                    MAIN                                   **/
 /*******************************************************************************/
 
-#define DEBUG false
-
 int main()
 {
 	cout << "Voicemeeter remote\n";
@@ -464,12 +432,7 @@ int main()
 	{
 		cout << "Communication established with Voicemeeter\n";
 		if (initArduino())
-		{	
-			while (!sendReadyMessage()) 
-			{ 
-				cout << "Sending ready message\n";
-				Sleep(100); 
-			}
+		{
 			//thread t1(getData);
 			//t1.join();
 
@@ -486,26 +449,43 @@ int main()
 					cout << dstr << endl;
 
 
-					//try
-					//{
-					//	for (int i = 0; i < 5; i++)
-					//	{
-					//		setParameterFloat(strips[i], stoi(dataVect[i + 8]));
-					//	}
-					//	setParameterFloat(mutes[0], stoi(dataVect[14]));
-					//	setParameterFloat(mutes[1], stoi(dataVect[19]));
-					//	setParameterFloat(mutes[2], stoi(dataVect[24]));
-					//	setParameterFloat(mutes[3], stoi(dataVect[29]));
-					//	/*for (int i = 0; i < 8; i++)
-					//	{
-					//		setParameterFloat(mutes[i], stoi(dataVect[])
-					//	}*/
-					//	//waitForUpdate();
-					//}
-					//catch (...)
-					//{
-					//	cerr << "Error setting parameters\n";
-					//}
+					//fill vector with datastring
+					while (stringIndex < dataSize)
+					{
+						if (dataString[stringIndex] != ',')
+						{
+							dataBuff += dataString[stringIndex];
+						}
+						else
+						{
+							dataVect[vectIndex] = dataBuff;
+							dataBuff.clear();
+							vectIndex++;
+						}
+						stringIndex++;
+					}
+
+					for (int i = 0; i < dCopySize; i++)
+					{
+						cout << dataVect[i];
+					}
+
+					cout << "\n";
+
+					try
+					{
+						//setParameterFloat(strips[0], stoi(dataVect[8]));
+						setParameterFloat(strips[1], stoi(dataVect[9]));
+						//setParameterFloat(strips[2], stoi(dataVect[10]));
+						//setParameterFloat(strips[3], stoi(dataVect[11]));
+						//setParameterFloat(strips[4], stoi(dataVect[12]));
+						//setParameterFloat(strips[5], stoi(dataVect[13]));
+					}
+					catch (...)
+					{
+						cout << "Error setting parameters\n";
+					}
+					waitForUpdate();
 				}
 				else
 				{
@@ -520,7 +500,6 @@ int main()
 	}
 	arduino->closeSerial();
 	iVMR.VBVMR_Logout();
-	return 0;
 }
 
 
