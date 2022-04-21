@@ -36,17 +36,6 @@ char strips[8][14] = {
 	"Strip[7].gain"
 };
 
-char mutes[8][14] = {
-	"Strip[0].mute",
-	"Strip[1].mute",
-	"Strip[2].mute",
-	"Strip[3].mute",
-	"Strip[4].mute",
-	"Strip[5].mute",
-	"Strip[6].mute",
-	"Strip[7].mute"
-};
-
 //Declare a global object
 SerialPort* arduino;
 
@@ -57,7 +46,6 @@ using std::to_string;
 using std::cerr;
 using std::endl;
 using std::exception;
-using std::stoi;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -416,11 +404,6 @@ int sendData(const char* message)
 }
 
 
-int sendAliveMessage()
-{
-	return sendData("a");
-}
-
 /*******************************************************************************/
 /**                                    MAIN                                   **/
 /*******************************************************************************/
@@ -438,16 +421,26 @@ int main()
 
 			cout << "Communication established with Arduino\n";
 
+			vector<string>dataVect;
+
 			enumerate_ports();
 
 			while (1)
 			{
-				string dstr = getData();
-				int szDstr = dstr.size();
-				if (szDstr > 0)
-				{
-					cout << dstr << endl;
+				string dataString = getData();
+				int dataSize = dataString.size();
 
+				if (dataSize != 0)
+				{
+					//get size of datastring, ignoring commas
+					string dCopy = dataString;
+					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
+					int dCopySize = dCopy.size();
+					dataVect.resize(dCopySize);
+
+					int vectIndex = 0;
+					int stringIndex = 0;
+					string dataBuff;
 
 					//fill vector with datastring
 					while (stringIndex < dataSize)
@@ -464,28 +457,36 @@ int main()
 						}
 						stringIndex++;
 					}
-
-					for (int i = 0; i < dCopySize; i++)
+					if (DEBUG)
 					{
-						cout << dataVect[i];
+						for (int i = 0; i < dCopySize; i++)
+						{
+							cout << dataVect[i];
+						}
+						cout << "\n";
 					}
 
-					cout << "\n";
 
-					try
-					{
-						//setParameterFloat(strips[0], stoi(dataVect[8]));
-						setParameterFloat(strips[1], stoi(dataVect[9]));
-						//setParameterFloat(strips[2], stoi(dataVect[10]));
-						//setParameterFloat(strips[3], stoi(dataVect[11]));
-						//setParameterFloat(strips[4], stoi(dataVect[12]));
-						//setParameterFloat(strips[5], stoi(dataVect[13]));
-					}
-					catch (...)
-					{
-						cout << "Error setting parameters\n";
-					}
-					waitForUpdate();
+					//try
+					//{
+					//	for (int i = 0; i < 5; i++)
+					//	{
+					//		setParameterFloat(strips[i], stoi(dataVect[i + 8]));
+					//	}
+					//	setParameterFloat(mutes[0], stoi(dataVect[14]));
+					//	setParameterFloat(mutes[1], stoi(dataVect[19]));
+					//	setParameterFloat(mutes[2], stoi(dataVect[24]));
+					//	setParameterFloat(mutes[3], stoi(dataVect[29]));
+					//	/*for (int i = 0; i < 8; i++)
+					//	{
+					//		setParameterFloat(mutes[i], stoi(dataVect[])
+					//	}*/
+					//	//waitForUpdate();
+					//}
+					//catch (...)
+					//{
+					//	cerr << "Error setting parameters\n";
+					//}
 				}
 				else
 				{
