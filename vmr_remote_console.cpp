@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <thread>
 #include "serial.h"
+#include <chrono>
 
 
 #define DATA_LENGTH 1023
@@ -300,8 +301,31 @@ int initVoicemeeter()
 	return TRUE;
 }
 
+int waitForUpdate(int timeout)
+{
+	unsigned __int64 previousTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	unsigned __int64 currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+	while (currentTime - timeout < previousTime)
+	{
+		if (!iVMR.VBVMR_IsParametersDirty())
+		{
+			Sleep(10);
+		}
+		if (iVMR.VBVMR_IsParametersDirty())
+		{
+			Sleep(10);
+		}
+		Sleep(10);
+		currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
+	cout << "times up" << endl;
+	return 0;
+}
+
 void waitForUpdate()
 {
+
 	while (!iVMR.VBVMR_IsParametersDirty())
 	{
 		Sleep(10);
@@ -373,12 +397,12 @@ string getData()
 	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	string dataString = receivedString;
 	int dataSize = dataString.size();
-	if (dataSize >= 2)
+	/*if (dataSize >= 2)
 	{
 		dataString.erase(dataString.size() - 2);
-	}
-	int first = dataString.find('<');
-	int last = dataString.find('>');
+	}*/
+	int first = dataString.find_last_of('<');
+	int last = dataString.find_last_of('>');
 	if (first >= 0 && last >= 0)
 	{
 		try
@@ -399,14 +423,22 @@ string getData()
 
 int sendData(const char* message)
 {
-	bool hasWritten = arduino->writeSerialPort(message, DATA_LENGTH);
+	string message_str = string(message);
+	int data_size = message_str.size();
+	bool hasWritten = arduino->writeSerialPort(message, data_size);
 	return hasWritten;
 }
 
+int sendReadyMessage()
+{
+	return sendData("r");
+}
 
 /*******************************************************************************/
 /**                                    MAIN                                   **/
 /*******************************************************************************/
+
+#define DEBUG false
 
 int main()
 {
@@ -415,7 +447,12 @@ int main()
 	{
 		cout << "Communication established with Voicemeeter\n";
 		if (initArduino())
-		{
+		{	
+			while (!sendReadyMessage()) 
+			{ 
+				cout << "Sending ready message\n";
+				Sleep(100); 
+			}
 			//thread t1(getData);
 			//t1.join();
 
@@ -457,13 +494,15 @@ int main()
 						}
 						stringIndex++;
 					}
-
-					for (int i = 0; i < dCopySize; i++)
+					if (DEBUG)
 					{
-						cout << dataVect[i];
+						for (int i = 0; i < dCopySize; i++)
+						{
+							cout << dataVect[i];
+						}
+						cout << "\n";
 					}
 
-					cout << "\n";
 
 					try
 					{
@@ -493,6 +532,7 @@ int main()
 	}
 	arduino->closeSerial();
 	iVMR.VBVMR_Logout();
+	return 0;
 }
 
 
