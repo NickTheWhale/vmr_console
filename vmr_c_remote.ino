@@ -8,11 +8,17 @@ const int B = 26;
 const int C = 27;
 const int A_PINS = 14;
 bool dData[D_PINS] = {0};
+#define PRIME_A 54059 /* a prime */
+#define PRIME_B 76963 /* another prime */
+#define PRIME_C 86969 /* yet another prime */
+#define FIRSTH 37 /* also prime */
 
 String dataLag = "";
 unsigned long previousTime;
 
 #define MAX_MESSAGE_LENGTH 255
+
+#define WAIT_FOR_RUN false
 #define ITERATIONS 50           //number of analog readings
 #define INTERVAL 10             //interval in milliseconds to send data
 
@@ -61,16 +67,18 @@ void setup() {
 
   bool consoleReady = false;
   String incomingMessage;
-  while (!consoleReady) {
-    if (Serial.available() > 0) {
-      incomingMessage = Serial.read();
-      if (incomingMessage == "r") {
-        consoleReady = true;
+  if (WAIT_FOR_RUN) {
+    while (!consoleReady) {
+      if (Serial.available() > 0) {
+        incomingMessage = Serial.read();
+        if (incomingMessage == "r") {
+          consoleReady = true;
+        }
       }
+      Serial.flush();
     }
     Serial.flush();
   }
-  
   previousTime = millis();
 }
 
@@ -82,10 +90,11 @@ void loop() {
     Serial.print(dataBuffer);
     Serial.println();
   }
-//  if (millis() - INTERVAL > previousTime){
-//    Serial.print(dataBuffer);
-//    Serial.println();
-//  }
+
+  //  if (millis() - INTERVAL > previousTime){
+  //    Serial.print(dataBuffer);
+  //    Serial.println();
+  //  }
 }
 
 
@@ -168,31 +177,37 @@ String getDigitalData() {
 
 String getAllData(bool knobs) {
   String dataString;
-  dataString = '<' + getAnalogData(knobs) + ',' + getDigitalData() + '>';
-  //dataString = getAnalogData(knobs) + ',' + getDigitalData();
-  return dataString;
+  String dataCopy;
+  unsigned hash;
+  dataString = getAnalogData(knobs) + ',' + getDigitalData();
+  dataCopy = dataString;
+  const char *c = dataCopy.c_str();
+  hash = getHash(c);
+
+  return '<' + String(hash) + "," + dataString + '>';
+}
+
+unsigned getHash(const char* s) {
+  unsigned h = FIRSTH;
+  while (*s) {
+    h = (h * PRIME_A) ^ (s[0] * PRIME_B);
+    s++;
+  }
+  return h % PRIME_C; // or return h % PRIME_C;
 }
 
 void receiveData() {
   if (Serial.available() > 0) {
-
     static char message[MAX_MESSAGE_LENGTH];
     static unsigned int message_pos = 0;
-
     char inByte = Serial.read();
-
     if ( inByte != '\n' && (message_pos < MAX_MESSAGE_LENGTH - 1) ) {
-
       message[message_pos] = inByte;
       message_pos++;
     }
-
     else {
-
       message[message_pos] = '\0';
-
       Serial.println(message);
-
       message_pos = 0;
     }
   }
