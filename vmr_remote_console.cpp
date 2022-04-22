@@ -22,8 +22,12 @@
 
 
 #define DATA_LENGTH 1023
+#define PRIME_A 54059 /* a prime */
+#define PRIME_B 76963 /* another prime */
+#define PRIME_C 86969 /* yet another prime */
+#define FIRSTH 37 /* also prime */
 
-const char* portName = "\\\\.\\COM18";
+const char* portName = "\\\\.\\COM38";
 
 char strips[8][14] = {
 	"Strip[0].gain",
@@ -113,53 +117,9 @@ BOOL __cdecl RegistryGetVoicemeeterFolder(char* szDir)
 static HMODULE G_H_Module = NULL;
 static T_VBVMR_INTERFACE iVMR;
 
-//if we directly link source code (for development only)
-//#ifdef VBUSE_LOCALLIB
-//
-//long InitializeDLLInterfaces(void)
-//{
-//	iVMR.VBVMR_Login = VBVMR_Login;
-//	iVMR.VBVMR_Logout = VBVMR_Logout;
-//	iVMR.VBVMR_RunVoicemeeter = VBVMR_RunVoicemeeter;
-//	iVMR.VBVMR_GetVoicemeeterType = VBVMR_GetVoicemeeterType;
-//	iVMR.VBVMR_GetVoicemeeterVersion = VBVMR_GetVoicemeeterVersion;
-//	iVMR.VBVMR_IsParametersDirty = VBVMR_IsParametersDirty;
-//	iVMR.VBVMR_GetParameterFloat = VBVMR_GetParameterFloat;
-//	iVMR.VBVMR_GetParameterStringA = VBVMR_GetParameterStringA;
-//	iVMR.VBVMR_GetParameterStringW = VBVMR_GetParameterStringW;
-//
-//	iVMR.VBVMR_GetLevel = VBVMR_GetLevel;
-//	iVMR.VBVMR_GetMidiMessage = VBVMR_GetMidiMessage;
-//	iVMR.VBVMR_SetParameterFloat = VBVMR_SetParameterFloat;
-//	iVMR.VBVMR_SetParameters = VBVMR_SetParameters;
-//	iVMR.VBVMR_SetParametersW = VBVMR_SetParametersW;
-//	iVMR.VBVMR_SetParameterStringA = VBVMR_SetParameterStringA;
-//	iVMR.VBVMR_SetParameterStringW = VBVMR_SetParameterStringW;
-//
-//	iVMR.VBVMR_Output_GetDeviceNumber = VBVMR_Output_GetDeviceNumber;
-//	iVMR.VBVMR_Output_GetDeviceDescA = VBVMR_Output_GetDeviceDescA;
-//	iVMR.VBVMR_Output_GetDeviceDescW = VBVMR_Output_GetDeviceDescW;
-//	iVMR.VBVMR_Input_GetDeviceNumber = VBVMR_Input_GetDeviceNumber;
-//	iVMR.VBVMR_Input_GetDeviceDescA = VBVMR_Input_GetDeviceDescA;
-//	iVMR.VBVMR_Input_GetDeviceDescW = VBVMR_Input_GetDeviceDescW;
-//
-//#ifdef VMR_INCLUDE_AUDIO_PROCESSING_EXAMPLE
-//	iVMR.VBVMR_AudioCallbackRegister = VBVMR_AudioCallbackRegister;
-//	iVMR.VBVMR_AudioCallbackStart = VBVMR_AudioCallbackStart;
-//	iVMR.VBVMR_AudioCallbackStop = VBVMR_AudioCallbackStop;
-//	iVMR.VBVMR_AudioCallbackUnregister = VBVMR_AudioCallbackUnregister;
-//#endif
-//#ifdef	VMR_INCLUDE_MACROBUTTONS_REMOTING
-//	iVMR.VBVMR_MacroButton_IsDirty = VBVMR_MacroButton_IsDirty;
-//	iVMR.VBVMR_MacroButton_GetStatus = VBVMR_MacroButton_GetStatus;
-//	iVMR.VBVMR_MacroButton_SetStatus = VBVMR_MacroButton_SetStatus;
-//
-//#endif
-//	return 0;
-//}
+
 
 //Dynamic link to DLL in 'C' (regular use)
-
 
 long InitializeDLLInterfaces(void)
 {
@@ -257,9 +217,6 @@ long InitializeDLLInterfaces(void)
 #endif
 	return 0;
 }
-
-
-
 
 int initVoicemeeter()
 {
@@ -367,19 +324,54 @@ void enumerate_ports()
 	}
 }
 
+unsigned getHash(const char* s) {
+	unsigned h = FIRSTH;
+	while (*s) {
+		h = (h * PRIME_A) ^ (s[0] * PRIME_B);
+		s++;
+	}
+	return h % PRIME_C; 
+}
+
 string getData()
 {
 	char receivedString[DATA_LENGTH];
-	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
-	string dataString = receivedString;
-	int dataSize = dataString.size();
-	int first = dataString.find_last_of('<');
-	int last = dataString.find_last_of('>');
+	string dataString;
+	string dataCopy;
+	int hasRead;
+	int dataSize;
+	int first;
+	int last;
+	int dfirst;
+	string sentHash;
+	string rcHash;
+	unsigned hash;
+
+	hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
+	dataString = receivedString;
+    dataSize = dataString.size();
+	first = dataString.find_last_of('<');
+	last = dataString.find_last_of('>');
+
 	if (first >= 0 && last >= 0)
 	{
 		dataString = dataString.substr(first + 1, last - first - 1);
-		cout << "raw char: " << receivedString << endl << endl;
-		return dataString;
+		dfirst = dataString.find_first_of(',');
+		dataCopy = dataString.substr(dfirst + 1, last - first);
+		sentHash = dataString.substr(0, dfirst);
+		const char* c = dataCopy.c_str();
+		hash = getHash(c);
+		rcHash = to_string(hash);
+		if (rcHash == sentHash) 
+		{
+			dataString = dataString.substr(dfirst, last - first - 1);
+			return dataString;
+		}
+		else
+		{
+			cout << "hashes dont match" << endl;
+			return "";
+		}
 	}
 	
 	else
@@ -402,6 +394,10 @@ int sendData(const char* message)
 int main()
 {
 	cout << "Voicemeeter remote\n";
+	cout << "Avaliable ports\n\n";
+	enumerate_ports();
+	cout << endl;
+
 	if (initVoicemeeter())
 	{
 		cout << "Communication established with Voicemeeter\n";
@@ -413,8 +409,7 @@ int main()
 			cout << "Communication established with Arduino\n";
 
 			vector<string>dataVect;
-
-			enumerate_ports();
+			string dCopy;
 
 			while (1)
 			{
@@ -423,9 +418,10 @@ int main()
 
 				if (dataSize != 0)
 				{
-					string dCopy = dataString;
+					dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					cout << "dcopy: " << dCopy << endl;
+					cout << "dcopy: " << dCopy << endl << endl;
+					
 					//try
 					//{
 					//	setParameterFloat(strips[i], stoi(dataVect[i + 8]));
