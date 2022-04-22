@@ -114,52 +114,52 @@ static HMODULE G_H_Module = NULL;
 static T_VBVMR_INTERFACE iVMR;
 
 //if we directly link source code (for development only)
-#ifdef VBUSE_LOCALLIB
-
-long InitializeDLLInterfaces(void)
-{
-	iVMR.VBVMR_Login = VBVMR_Login;
-	iVMR.VBVMR_Logout = VBVMR_Logout;
-	iVMR.VBVMR_RunVoicemeeter = VBVMR_RunVoicemeeter;
-	iVMR.VBVMR_GetVoicemeeterType = VBVMR_GetVoicemeeterType;
-	iVMR.VBVMR_GetVoicemeeterVersion = VBVMR_GetVoicemeeterVersion;
-	iVMR.VBVMR_IsParametersDirty = VBVMR_IsParametersDirty;
-	iVMR.VBVMR_GetParameterFloat = VBVMR_GetParameterFloat;
-	iVMR.VBVMR_GetParameterStringA = VBVMR_GetParameterStringA;
-	iVMR.VBVMR_GetParameterStringW = VBVMR_GetParameterStringW;
-
-	iVMR.VBVMR_GetLevel = VBVMR_GetLevel;
-	iVMR.VBVMR_GetMidiMessage = VBVMR_GetMidiMessage;
-	iVMR.VBVMR_SetParameterFloat = VBVMR_SetParameterFloat;
-	iVMR.VBVMR_SetParameters = VBVMR_SetParameters;
-	iVMR.VBVMR_SetParametersW = VBVMR_SetParametersW;
-	iVMR.VBVMR_SetParameterStringA = VBVMR_SetParameterStringA;
-	iVMR.VBVMR_SetParameterStringW = VBVMR_SetParameterStringW;
-
-	iVMR.VBVMR_Output_GetDeviceNumber = VBVMR_Output_GetDeviceNumber;
-	iVMR.VBVMR_Output_GetDeviceDescA = VBVMR_Output_GetDeviceDescA;
-	iVMR.VBVMR_Output_GetDeviceDescW = VBVMR_Output_GetDeviceDescW;
-	iVMR.VBVMR_Input_GetDeviceNumber = VBVMR_Input_GetDeviceNumber;
-	iVMR.VBVMR_Input_GetDeviceDescA = VBVMR_Input_GetDeviceDescA;
-	iVMR.VBVMR_Input_GetDeviceDescW = VBVMR_Input_GetDeviceDescW;
-
-#ifdef VMR_INCLUDE_AUDIO_PROCESSING_EXAMPLE
-	iVMR.VBVMR_AudioCallbackRegister = VBVMR_AudioCallbackRegister;
-	iVMR.VBVMR_AudioCallbackStart = VBVMR_AudioCallbackStart;
-	iVMR.VBVMR_AudioCallbackStop = VBVMR_AudioCallbackStop;
-	iVMR.VBVMR_AudioCallbackUnregister = VBVMR_AudioCallbackUnregister;
-#endif
-#ifdef	VMR_INCLUDE_MACROBUTTONS_REMOTING
-	iVMR.VBVMR_MacroButton_IsDirty = VBVMR_MacroButton_IsDirty;
-	iVMR.VBVMR_MacroButton_GetStatus = VBVMR_MacroButton_GetStatus;
-	iVMR.VBVMR_MacroButton_SetStatus = VBVMR_MacroButton_SetStatus;
-
-#endif
-	return 0;
-}
+//#ifdef VBUSE_LOCALLIB
+//
+//long InitializeDLLInterfaces(void)
+//{
+//	iVMR.VBVMR_Login = VBVMR_Login;
+//	iVMR.VBVMR_Logout = VBVMR_Logout;
+//	iVMR.VBVMR_RunVoicemeeter = VBVMR_RunVoicemeeter;
+//	iVMR.VBVMR_GetVoicemeeterType = VBVMR_GetVoicemeeterType;
+//	iVMR.VBVMR_GetVoicemeeterVersion = VBVMR_GetVoicemeeterVersion;
+//	iVMR.VBVMR_IsParametersDirty = VBVMR_IsParametersDirty;
+//	iVMR.VBVMR_GetParameterFloat = VBVMR_GetParameterFloat;
+//	iVMR.VBVMR_GetParameterStringA = VBVMR_GetParameterStringA;
+//	iVMR.VBVMR_GetParameterStringW = VBVMR_GetParameterStringW;
+//
+//	iVMR.VBVMR_GetLevel = VBVMR_GetLevel;
+//	iVMR.VBVMR_GetMidiMessage = VBVMR_GetMidiMessage;
+//	iVMR.VBVMR_SetParameterFloat = VBVMR_SetParameterFloat;
+//	iVMR.VBVMR_SetParameters = VBVMR_SetParameters;
+//	iVMR.VBVMR_SetParametersW = VBVMR_SetParametersW;
+//	iVMR.VBVMR_SetParameterStringA = VBVMR_SetParameterStringA;
+//	iVMR.VBVMR_SetParameterStringW = VBVMR_SetParameterStringW;
+//
+//	iVMR.VBVMR_Output_GetDeviceNumber = VBVMR_Output_GetDeviceNumber;
+//	iVMR.VBVMR_Output_GetDeviceDescA = VBVMR_Output_GetDeviceDescA;
+//	iVMR.VBVMR_Output_GetDeviceDescW = VBVMR_Output_GetDeviceDescW;
+//	iVMR.VBVMR_Input_GetDeviceNumber = VBVMR_Input_GetDeviceNumber;
+//	iVMR.VBVMR_Input_GetDeviceDescA = VBVMR_Input_GetDeviceDescA;
+//	iVMR.VBVMR_Input_GetDeviceDescW = VBVMR_Input_GetDeviceDescW;
+//
+//#ifdef VMR_INCLUDE_AUDIO_PROCESSING_EXAMPLE
+//	iVMR.VBVMR_AudioCallbackRegister = VBVMR_AudioCallbackRegister;
+//	iVMR.VBVMR_AudioCallbackStart = VBVMR_AudioCallbackStart;
+//	iVMR.VBVMR_AudioCallbackStop = VBVMR_AudioCallbackStop;
+//	iVMR.VBVMR_AudioCallbackUnregister = VBVMR_AudioCallbackUnregister;
+//#endif
+//#ifdef	VMR_INCLUDE_MACROBUTTONS_REMOTING
+//	iVMR.VBVMR_MacroButton_IsDirty = VBVMR_MacroButton_IsDirty;
+//	iVMR.VBVMR_MacroButton_GetStatus = VBVMR_MacroButton_GetStatus;
+//	iVMR.VBVMR_MacroButton_SetStatus = VBVMR_MacroButton_SetStatus;
+//
+//#endif
+//	return 0;
+//}
 
 //Dynamic link to DLL in 'C' (regular use)
-#else
+
 
 long InitializeDLLInterfaces(void)
 {
@@ -259,7 +259,7 @@ long InitializeDLLInterfaces(void)
 }
 
 
-#endif
+
 
 int initVoicemeeter()
 {
@@ -373,24 +373,15 @@ string getData()
 	int hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	string dataString = receivedString;
 	int dataSize = dataString.size();
-	if (dataSize >= 2)
-	{
-		dataString.erase(dataString.size() - 2);
-	}
-	int first = dataString.find('<');
-	int last = dataString.find('>');
+	int first = dataString.find_last_of('<');
+	int last = dataString.find_last_of('>');
 	if (first >= 0 && last >= 0)
 	{
-		try
-		{
-			dataString = dataString.substr(first + 1, last - first - 1);
-		}
-		catch (...)
-		{
-			cout << "error:    first: " << first << " last: " << last << endl;
-		}
+		dataString = dataString.substr(first + 1, last - first - 1);
+		cout << "raw char: " << receivedString << endl << endl;
 		return dataString;
 	}
+	
 	else
 	{
 		return "";
@@ -432,54 +423,12 @@ int main()
 
 				if (dataSize != 0)
 				{
-					//get size of datastring, ignoring commas
 					string dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					int dCopySize = dCopy.size();
-					dataVect.resize(dCopySize);
-
-					int vectIndex = 0;
-					int stringIndex = 0;
-					string dataBuff;
-
-					//fill vector with datastring
-					while (stringIndex < dataSize)
-					{
-						if (dataString[stringIndex] != ',')
-						{
-							dataBuff += dataString[stringIndex];
-						}
-						else
-						{
-							dataVect[vectIndex] = dataBuff;
-							dataBuff.clear();
-							vectIndex++;
-						}
-						stringIndex++;
-					}
-
-					for (int i = 0; i < dCopySize; i++)
-					{
-						cout << dataVect[i];
-					}
-
-					cout << "\n";
-
+					cout << "dcopy: " << dCopy << endl;
 					//try
 					//{
-					//	for (int i = 0; i < 5; i++)
-					//	{
-					//		setParameterFloat(strips[i], stoi(dataVect[i + 8]));
-					//	}
-					//	setParameterFloat(mutes[0], stoi(dataVect[14]));
-					//	setParameterFloat(mutes[1], stoi(dataVect[19]));
-					//	setParameterFloat(mutes[2], stoi(dataVect[24]));
-					//	setParameterFloat(mutes[3], stoi(dataVect[29]));
-					//	/*for (int i = 0; i < 8; i++)
-					//	{
-					//		setParameterFloat(mutes[i], stoi(dataVect[])
-					//	}*/
-					//	//waitForUpdate();
+					//	setParameterFloat(strips[i], stoi(dataVect[i + 8]));
 					//}
 					//catch (...)
 					//{
