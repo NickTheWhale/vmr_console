@@ -129,3 +129,13 @@ void SerialPort::closeSerial()
 {
     CloseHandle(this->handler);
 }
+
+void SerialPort::clearInputBuffer()
+{
+    PurgeComm(this->handler, PURGE_RXCLEAR);
+}
+
+void SerialPort::clearOutputBuffer()
+{
+    PurgeComm(this->handler, PURGE_TXCLEAR);
+}

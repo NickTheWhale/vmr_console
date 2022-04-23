@@ -28,4 +28,6 @@ public:
     bool writeSerialPort(const char* buffer, unsigned int buf_size);
     bool isConnected();
     void closeSerial();
+    void clearInputBuffer();
+    void clearOutputBuffer();
 };

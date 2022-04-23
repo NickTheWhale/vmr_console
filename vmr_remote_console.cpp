@@ -371,7 +371,7 @@ string getData()
 			}
 			else
 			{
-				cout << "hashes dont match" << endl;
+				cerr << "hashes dont match" << endl;
 				return "";
 			}
 		}
@@ -406,6 +406,7 @@ int main()
 		cout << "Communication established with Voicemeeter\n";
 		if (initArduino())
 		{
+			arduino->clearInputBuffer();
 			//thread t1(getData);
 			//t1.join();
 
@@ -419,7 +420,7 @@ int main()
 				string dataString = getData();
 				int dataSize = dataString.size();
 
-				if (dataSize != 0)
+				if (dataSize > 0)
 				{
 					dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
