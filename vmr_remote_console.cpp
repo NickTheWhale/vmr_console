@@ -355,22 +355,25 @@ string getData()
 
 	if (first >= 0 && last >= 0)
 	{
-		dataString = dataString.substr(first + 1, last - first - 1);
-		dfirst = dataString.find_first_of(',');
-		dataCopy = dataString.substr(dfirst + 1, last - first);
-		sentHash = dataString.substr(0, dfirst);
-		const char* c = dataCopy.c_str();
-		hash = getHash(c);
-		rcHash = to_string(hash);
-		if (rcHash == sentHash) 
+		if (last > first)
 		{
-			dataString = dataString.substr(dfirst, last - first - 1);
-			return dataString;
-		}
-		else
-		{
-			cout << "hashes dont match" << endl;
-			return "";
+			dataString = dataString.substr(first + 1, last - first - 1);
+			dfirst = dataString.find_first_of(',');
+			dataCopy = dataString.substr(dfirst + 1, last - first);
+			sentHash = dataString.substr(0, dfirst);
+			const char* c = dataCopy.c_str();
+			hash = getHash(c);
+			rcHash = to_string(hash);
+			if (rcHash == sentHash)
+			{
+				dataString = dataString.substr(dfirst, last - first - 1);
+				return dataString;
+			}
+			else
+			{
+				cout << "hashes dont match" << endl;
+				return "";
+			}
 		}
 	}
 	
