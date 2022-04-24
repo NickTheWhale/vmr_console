@@ -336,20 +336,13 @@ unsigned getHash(const char* s) {
 string getData()
 {
 	char receivedString[DATA_LENGTH];
-	string dataString;
-	string dataCopy;
-	int hasRead;
-	int dataSize;
-	int first;
-	int last;
-	int dfirst;
-	string sentHash;
-	string rcHash;
+	string dataString, sentHash, rcHash, dataCopy;
+	int hasRead, szData, first, last, dfirst;
 	unsigned hash;
 
 	hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	dataString = receivedString;
-    dataSize = dataString.size();
+    szData = dataString.size();
 	first = dataString.find_last_of('<');
 	last = dataString.find_last_of('>');
 
@@ -406,7 +399,10 @@ int main()
 		cout << "Communication established with Voicemeeter\n";
 		if (initArduino())
 		{
-			arduino->clearInputBuffer();
+			if (!arduino->flushInputBuffer())
+			{
+				cerr << "Failed to clear input serial buffer\n";
+			}
 			//thread t1(getData);
 			//t1.join();
 
@@ -424,7 +420,7 @@ int main()
 				{
 					dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					cout << "dcopy: " << dCopy << endl << endl;
+					cout << "dcopy: " << dCopy << endl;
 					
 					//try
 					//{
@@ -444,16 +440,11 @@ int main()
 	}
 	else
 	{
-		cout << "Error establishing connection with Voicemeeter\n";
+		cerr << "Error establishing connection with Voicemeeter\n";
 	}
 	arduino->closeSerial();
 	iVMR.VBVMR_Logout();
 }
-
-
-//char param1[14] = "Strip[0].gain";
-//float val = 5;
-//setParameterFloat(param1, val);
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

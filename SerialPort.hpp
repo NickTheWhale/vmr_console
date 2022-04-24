@@ -7,7 +7,7 @@
 
 #pragma once
 
-#define ARDUINO_WAIT_TIME 2000
+#define ARDUINO_WAIT_TIME 1000
 #define MAX_DATA_LENGTH 255
 
 #include <windows.h>
@@ -28,6 +28,6 @@ public:
     bool writeSerialPort(const char* buffer, unsigned int buf_size);
     bool isConnected();
     void closeSerial();
-    void clearInputBuffer();
-    void clearOutputBuffer();
+    int flushInputBuffer();
+    int flushOutputBuffer();
 };
