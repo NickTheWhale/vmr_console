@@ -421,7 +421,8 @@ int main()
 					dCopy = dataString;
 					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
 					cout << "dcopy: " << dCopy << endl;
-					
+					//printf("%s\r", "");
+					//printf("%s\r", dCopy.c_str());
 					//try
 					//{
 					//	setParameterFloat(strips[i], stoi(dataVect[i + 8]));
