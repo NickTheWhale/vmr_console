@@ -21,7 +21,7 @@ private:
     COMSTAT status;
     DWORD errors;
 public:
-    explicit SerialPort(const char* portName);
+    explicit SerialPort(const char* portName, DWORD baudRate = CBR_9600);
     ~SerialPort();
 
     int readSerialPort(const char* buffer, unsigned int buf_size);
@@ -30,4 +30,5 @@ public:
     void closeSerial();
     int flushInputBuffer();
     int flushOutputBuffer();
+    //int input80full();
 };

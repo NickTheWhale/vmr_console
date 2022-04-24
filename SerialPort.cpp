@@ -7,7 +7,7 @@
 
 #include "SerialPort.hpp"
 
-SerialPort::SerialPort(const char* portName)
+SerialPort::SerialPort(const char* portName, DWORD baudRate)
 {
     this->connected = false;
 
@@ -39,7 +39,8 @@ SerialPort::SerialPort(const char* portName)
         }
         else
         {
-            dcbSerialParameters.BaudRate = CBR_9600;
+            //dcbSerialParameters.BaudRate = CBR_9600;
+            dcbSerialParameters.BaudRate = baudRate;
             dcbSerialParameters.ByteSize = 8;
             dcbSerialParameters.StopBits = ONESTOPBIT;
             dcbSerialParameters.Parity = NOPARITY;
@@ -139,3 +140,12 @@ int SerialPort::flushOutputBuffer()
 {
     return PurgeComm(this->handler, PURGE_TXCLEAR);
 }
+
+//int SerialPort::input80full()
+//{
+//    DWORD masks;
+//    int mask;
+//    SetCommMask(this->handler, EV_RX80FULL);
+//    mask = GetCommMask(this->handler, &masks);
+//    return mask;
+//}

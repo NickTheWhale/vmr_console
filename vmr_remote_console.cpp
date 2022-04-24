@@ -305,7 +305,7 @@ int setParameterFloat(char* param, float val)
 
 int initArduino()
 {
-	arduino = new SerialPort(portName);
+	arduino = new SerialPort(portName, 115200);
 	return arduino->isConnected();
 }
 
@@ -339,7 +339,6 @@ string getData()
 	string dataString, sentHash, rcHash, dataCopy;
 	int hasRead, szData, first, last, dfirst;
 	unsigned hash;
-
 	hasRead = arduino->readSerialPort(receivedString, DATA_LENGTH);
 	dataString = receivedString;
     szData = dataString.size();
@@ -368,8 +367,11 @@ string getData()
 				return "";
 			}
 		}
+		else
+		{
+			return "";
+		}
 	}
-	
 	else
 	{
 		return "";
