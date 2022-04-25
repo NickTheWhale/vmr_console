@@ -381,6 +381,48 @@ int sendData(const char* message)
 	return hasWritten;
 }
 
+void run()
+{
+	vector<float>dVect;
+	string dCopy;
+
+	while (1)
+	{
+		string dString = getData();
+		int dataSize = dString.size();
+
+		if (dataSize > 0)
+		{
+			int comma = dString.find(",");
+			string dBuff;
+			while (comma != string::npos)
+			{
+				dBuff = dString.substr(0, comma);
+				dVect.push_back(stof(dBuff));
+				dString.erase(0, comma + 1);
+				comma = dString.find(",");
+			}
+			dVect.push_back(stoi(dString));
+			try
+			{
+				for (int i = 0; i < 6; i++)
+				{
+					setParameterFloat(strips[i], dVect[i + 8]);
+				}
+			}
+			catch (...)
+			{
+				cerr << "Error setting parameters\n";
+			}
+			dVect.clear();
+		}
+		else
+		{
+			Sleep(1);
+		}
+	}
+}
+
 
 /*******************************************************************************/
 /**                                    MAIN                                   **/
@@ -402,48 +444,8 @@ int main()
 			{
 				cerr << "Failed to clear input serial buffer\n";
 			}
-
 			cout << "Communication established with Arduino\n";
-
-			vector<int>dVect;
-			string dCopy;
-
-			while (1)
-			{
-				string dString = getData();
-				int dataSize = dString.size();
-
-				if (dataSize > 0)
-				{
-					int comma = dString.find(",");
-					string dBuff;
-					while (comma != string::npos)
-					{
-						dBuff = dString.substr(0, comma);
-						dVect.push_back(stoi(dBuff));
-						dString.erase(0, comma + 1);
-						comma = dString.find(",");
-					}
-					dVect.push_back(stoi(dString));
-
-					try
-					{
-						for (int i = 0; i < 6; i++)
-						{
-							setParameterFloat(strips[i], dVect[i + 8]);
-						}
-					}
-					catch (...)
-					{
-						cerr << "Error setting parameters\n";
-					}
-					dVect.clear();
-				}
-				else
-				{
-					Sleep(1);
-				}
-			}
+			run();
 		}
 	}
 	else
@@ -452,6 +454,7 @@ int main()
 	}
 	arduino->closeSerial();
 	iVMR.VBVMR_Logout();
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
