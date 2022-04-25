@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <thread>
 #include "serial.h"
+#include <chrono>
 
 
 #define DATA_LENGTH 1023
@@ -335,6 +336,12 @@ unsigned getHash(const char* s) {
 
 string getData()
 {
+	if (arduino->inBufferSize() > DATA_LENGTH)
+	{
+		cout << "num of bytes: " << arduino->inBufferSize() << endl;
+		arduino->flushInputBuffer();
+		return "";
+	}
 	char receivedString[DATA_LENGTH];
 	string dataString, sentHash, rcHash, dataCopy;
 	int hasRead, szData, first, last, dfirst;
@@ -345,37 +352,27 @@ string getData()
 	first = dataString.find_last_of('<');
 	last = dataString.find_last_of('>');
 
-	if (first >= 0 && last >= 0)
+	if (first >= 0 && last >= 0 && last > first)
 	{
-		if (last > first)
+		dataString = dataString.substr(first + 1, last - first - 1);
+		dfirst = dataString.find_first_of(',');
+		dataCopy = dataString.substr(dfirst + 1, last - first);
+		sentHash = dataString.substr(0, dfirst);
+		const char* c = dataCopy.c_str();
+		hash = getHash(c);
+		rcHash = to_string(hash);
+		if (rcHash == sentHash)
 		{
-			dataString = dataString.substr(first + 1, last - first - 1);
-			dfirst = dataString.find_first_of(',');
-			dataCopy = dataString.substr(dfirst + 1, last - first);
-			sentHash = dataString.substr(0, dfirst);
-			const char* c = dataCopy.c_str();
-			hash = getHash(c);
-			rcHash = to_string(hash);
-			if (rcHash == sentHash)
-			{
-				dataString = dataString.substr(dfirst, last - first - 1);
-				return dataString;
-			}
-			else
-			{
-				cerr << "hashes dont match" << endl;
-				return "";
-			}
+			dataString = dataString.substr(dfirst + 1, last - first - 1);
+			return dataString;
 		}
 		else
 		{
+			cerr << "hashes dont match" << endl;
 			return "";
 		}
 	}
-	else
-	{
-		return "";
-	}
+	return "";
 }
 
 int sendData(const char* message)
@@ -405,34 +402,42 @@ int main()
 			{
 				cerr << "Failed to clear input serial buffer\n";
 			}
-			//thread t1(getData);
-			//t1.join();
 
 			cout << "Communication established with Arduino\n";
 
-			vector<string>dataVect;
+			vector<int>dVect;
 			string dCopy;
 
 			while (1)
 			{
-				string dataString = getData();
-				int dataSize = dataString.size();
+				string dString = getData();
+				int dataSize = dString.size();
 
 				if (dataSize > 0)
 				{
-					dCopy = dataString;
-					dCopy.erase(remove(dCopy.begin(), dCopy.end(), ','), dCopy.end());
-					cout << "dcopy: " << dCopy << endl;
-					//printf("%s\r", "");
-					//printf("%s\r", dCopy.c_str());
-					//try
-					//{
-					//	setParameterFloat(strips[i], stoi(dataVect[i + 8]));
-					//}
-					//catch (...)
-					//{
-					//	cerr << "Error setting parameters\n";
-					//}
+					int comma = dString.find(",");
+					string dBuff;
+					while (comma != string::npos)
+					{
+						dBuff = dString.substr(0, comma);
+						dVect.push_back(stoi(dBuff));
+						dString.erase(0, comma + 1);
+						comma = dString.find(",");
+					}
+					dVect.push_back(stoi(dString));
+
+					try
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							setParameterFloat(strips[i], dVect[i + 8]);
+						}
+					}
+					catch (...)
+					{
+						cerr << "Error setting parameters\n";
+					}
+					dVect.clear();
 				}
 				else
 				{

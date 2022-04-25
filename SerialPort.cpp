@@ -141,11 +141,8 @@ int SerialPort::flushOutputBuffer()
     return PurgeComm(this->handler, PURGE_TXCLEAR);
 }
 
-//int SerialPort::input80full()
-//{
-//    DWORD masks;
-//    int mask;
-//    SetCommMask(this->handler, EV_RX80FULL);
-//    mask = GetCommMask(this->handler, &masks);
-//    return mask;
-//}
+int SerialPort::inBufferSize()
+{
+    ClearCommError(this->handler, &this->errors, &this->status);
+    return status.cbInQue;
+}
