@@ -30,5 +30,5 @@ public:
     void closeSerial();
     int flushInputBuffer();
     int flushOutputBuffer();
-    int inBufferSize();
+    int inputBufferSize();
 };

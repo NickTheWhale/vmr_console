@@ -336,9 +336,9 @@ unsigned getHash(const char* s) {
 
 string getData()
 {
-	if (arduino->inBufferSize() > DATA_LENGTH)
+	if (arduino->inputBufferSize() > DATA_LENGTH)
 	{
-		cout << "num of bytes: " << arduino->inBufferSize() << endl;
+		cout << "num of bytes: " << arduino->inputBufferSize() << endl;
 		arduino->flushInputBuffer();
 		return "";
 	}

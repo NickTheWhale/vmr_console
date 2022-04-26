@@ -141,7 +141,7 @@ int SerialPort::flushOutputBuffer()
     return PurgeComm(this->handler, PURGE_TXCLEAR);
 }
 
-int SerialPort::inBufferSize()
+int SerialPort::inputBufferSize()
 {
     ClearCommError(this->handler, &this->errors, &this->status);
     return status.cbInQue;
