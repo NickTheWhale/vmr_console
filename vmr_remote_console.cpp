@@ -118,8 +118,6 @@ BOOL __cdecl RegistryGetVoicemeeterFolder(char* szDir)
 static HMODULE G_H_Module = NULL;
 static T_VBVMR_INTERFACE iVMR;
 
-
-
 //Dynamic link to DLL in 'C' (regular use)
 
 long InitializeDLLInterfaces(void)
@@ -381,6 +379,12 @@ int sendData(const char* message)
 	return hasWritten;
 }
 
+struct {
+	bool A1, A2, A3, A4, A5, B1, B2, B3;
+	bool mono, solo, mute;
+	int gain;
+} input1, input2, input3, input4, input5;
+
 void run()
 {
 	vector<float>dVect;
@@ -403,7 +407,28 @@ void run()
 				comma = dString.find(",");
 			}
 			dVect.push_back(stoi(dString));
-			try
+
+			input1.A1 = dVect[18];
+			input1.A2 = dVect[17];
+			input1.A3 = dVect[16];
+			input1.A4 = dVect[15];
+			input1.A5 = dVect[14];
+			input2.A1 = dVect[23];
+			input2.A2 = dVect[22];
+			input2.A3 = dVect[21];
+			input2.A4 = dVect[20];
+			input2.A5 = dVect[19];
+			cout << input1.A1;
+			cout << input1.A2;
+			cout << input1.A3;
+			cout << input1.A4;
+			cout << input1.A5;
+			cout << input2.A1;
+			cout << input2.A2;
+			cout << input2.A3;
+			cout << input2.A4;
+			cout << input2.A5 << endl;
+			/*try
 			{
 				for (int i = 0; i < 6; i++)
 				{
@@ -413,7 +438,7 @@ void run()
 			catch (...)
 			{
 				cerr << "Error setting parameters\n";
-			}
+			}*/
 			dVect.clear();
 		}
 		else
@@ -422,7 +447,6 @@ void run()
 		}
 	}
 }
-
 
 /*******************************************************************************/
 /**                                    MAIN                                   **/
