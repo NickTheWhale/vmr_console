@@ -11,17 +11,17 @@
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
-#include "VoicemeeterRemote.h"
+#include <fstream>
 #include <string>
-#include "SerialPort.hpp"
 #include <sstream>
 #include <vector>
 #include <algorithm>
 #include <thread>
-#include "serial.h"
 #include <chrono>
 #include "properties.h"
-
+#include "VoicemeeterRemote.h"
+#include "SerialPort.hpp"
+#include "serial.h"
 
 #define DATA_LENGTH 1023
 #define PRIME_A 54059 /* a prime */
@@ -41,6 +41,10 @@ using std::to_string;
 using std::cerr;
 using std::endl;
 using std::exception;
+using std::ofstream;
+using std::ifstream;
+using std::fstream;
+using std::getline;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -369,25 +373,128 @@ int sendData(const char* message)
 	return hasWritten;
 }
 
-//struct inputType
-//{
-//	bool A1, A2, A3, A4, A5, B1, B2, B3;
-//	bool mono, solo, mute;
-//	int gain;
-//} input1, input2, input3, input4, input5;
-//
-//inputType storeData()
-//{
-//
-//	return input1;
-//}
+int getRouting() 
+{
+	string line;
+	int lineNum = 0;
+	ifstream routingFile("routing.txt");
+	if (routingFile.is_open())
+	{
+		cout << "Successfully opened routing.txt" << endl;
+		while (getline(routingFile, line))
+		{
+			cout << line << endl;
+			for (int i = 0; i < line.size(); i++)
+			{
+				routing[lineNum][i] = (char)line[i];
+			}
+			lineNum++;
+		}
+	}
+	else
+	{
+		cerr << "Error opening routing.txt" << endl;
+	}
+	routingFile.close();
+	return lineNum;
+}
 
-//struct inputType 
-//{
-//	bool A1, A2, A3, A4, A5, B1, B2, B3;
-//	bool mono, solo, mute;
-//	int gain;
-//} input1, input2, input3, input4, input5;
+int getParameters()
+{
+	int col;
+	int row;
+	int valueIndex;
+	int lineCount;
+	char routeChar;
+	char param[128][64] = {};
+	char valueBuffer[64] = {};
+	string line;
+
+	ifstream routingFile("routing.txt");
+	lineCount = 0;
+	while (getline(routingFile, line))
+	{
+		lineCount++;
+	}
+
+	col = 0;
+	row = 0;
+	for (int i = 1; i <= lineCount; i++)
+	{
+		col = 0;
+		routeChar = routing[row][col];
+		while (routeChar != '/')
+		{
+			param[row][col] = routeChar;
+			col++;
+			routeChar = routing[row][col];
+		}
+		col++;
+		routeChar = routing[row][col];
+		valueIndex = 0;
+		while (routeChar != ';')
+		{
+			valueBuffer[valueIndex] = routeChar;
+			col++;
+			valueIndex++;
+			routeChar = routing[row][col];
+		}
+		cout << param[row] << " , " << valueBuffer << endl;
+		row = i;
+	}
+	cout << endl << endl;
+	Sleep(500);
+	
+	return 0;
+}
+
+int validateRouting()
+{
+	//check if parameter and index are valid
+	return 0;
+}
+
+int updateVMR()
+{
+	string dString = getData();
+	int dataSize = dString.size();
+
+	if (dataSize > 0)
+	{
+		vector<float>dVect;
+		string dCopy;
+		string dBuff;
+		int i;
+		char routeChar;
+	    char param[128][64] = {};
+		float paramVal;
+		
+		int comma = dString.find(",");
+		while (comma != string::npos)
+		{
+			dBuff = dString.substr(0, comma);
+			dVect.push_back(stof(dBuff));
+			dString.erase(0, comma + 1);
+			comma = dString.find(",");
+		}
+		dVect.push_back(stoi(dString));
+
+		try
+		{
+			//set vmr
+		}
+		catch (...)
+		{
+			cerr << "Error setting parameters\n";
+		}
+		dVect.clear();
+	}
+	else
+	{
+		Sleep(1);
+	}
+	return 0;
+}
 
 void run()
 {
@@ -486,12 +593,15 @@ void run()
 /**                                    MAIN                                   **/
 /*******************************************************************************/
 
+
 int main()
 {
 	cout << "Voicemeeter remote\n";
 	cout << "Avaliable ports\n\n";
 	enumerate_ports();
 	cout << endl;
+
+	getRouting();
 
 	if (initVoicemeeter())
 	{
@@ -503,7 +613,12 @@ int main()
 				cerr << "Failed to clear input serial buffer\n";
 			}
 			cout << "Communication established with Arduino\n";
-			run();
+			//run();
+			while (1)
+			{
+				getParameters();
+				Sleep(1);
+			}
 		}
 	}
 	else
