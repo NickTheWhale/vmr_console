@@ -20,6 +20,7 @@
 #include <thread>
 #include "serial.h"
 #include <chrono>
+#include "properties.h"
 
 
 #define DATA_LENGTH 1023
@@ -29,17 +30,6 @@
 #define FIRSTH 37 /* also prime */
 
 const char* portName = "\\\\.\\COM38";
-
-char strips[8][14] = {
-	"Strip[0].gain",
-	"Strip[1].gain",
-	"Strip[2].gain",
-	"Strip[3].gain",
-	"Strip[4].gain",
-	"Strip[5].gain",
-	"Strip[6].gain",
-	"Strip[7].gain"
-};
 
 //Declare a global object
 SerialPort* arduino;
@@ -291,7 +281,7 @@ long getType()
 int setParameters(char* param)
 {
 	int ret = iVMR.VBVMR_SetParameters(param);
-	waitForUpdate();
+	//waitForUpdate();
 	return ret;
 }
 
@@ -379,11 +369,25 @@ int sendData(const char* message)
 	return hasWritten;
 }
 
-struct {
-	bool A1, A2, A3, A4, A5, B1, B2, B3;
-	bool mono, solo, mute;
-	int gain;
-} input1, input2, input3, input4, input5;
+//struct inputType
+//{
+//	bool A1, A2, A3, A4, A5, B1, B2, B3;
+//	bool mono, solo, mute;
+//	int gain;
+//} input1, input2, input3, input4, input5;
+//
+//inputType storeData()
+//{
+//
+//	return input1;
+//}
+
+//struct inputType 
+//{
+//	bool A1, A2, A3, A4, A5, B1, B2, B3;
+//	bool mono, solo, mute;
+//	int gain;
+//} input1, input2, input3, input4, input5;
 
 void run()
 {
@@ -408,7 +412,12 @@ void run()
 			}
 			dVect.push_back(stoi(dString));
 
-			input1.A1 = dVect[18];
+			/*for (int i = 36; i < dVect.size(); i++)
+			{
+				cout << "[" << dVect[i] << "," << i << "]";
+			}
+			cout << endl;*/
+			/*input1.A1 = dVect[18];
 			input1.A2 = dVect[17];
 			input1.A3 = dVect[16];
 			input1.A4 = dVect[15];
@@ -418,27 +427,52 @@ void run()
 			input2.A3 = dVect[21];
 			input2.A4 = dVect[20];
 			input2.A5 = dVect[19];
-			cout << input1.A1;
-			cout << input1.A2;
-			cout << input1.A3;
-			cout << input1.A4;
-			cout << input1.A5;
-			cout << input2.A1;
-			cout << input2.A2;
-			cout << input2.A3;
-			cout << input2.A4;
-			cout << input2.A5 << endl;
-			/*try
+			inputType s;
+			s = storeData();
+			cout << s.A1 << endl;*/
+			try
 			{
-				for (int i = 0; i < 6; i++)
+				/*for (int i = 0; i < 6; i++)
 				{
 					setParameterFloat(strips[i], dVect[i + 8]);
+				}*/
+				{
+					//strip gains
+					setParameterFloat(stripGain[0], dVect[8]);
+					setParameterFloat(stripGain[3], dVect[9]);
+					setParameterFloat(stripGain[4], dVect[10]);
+					setParameterFloat(stripGain[6], dVect[11]);
+
+					//strip sends
+					setParameterFloat(stripA1[0], dVect[18]); //A1
+					setParameterFloat(stripA1[3], dVect[23]);
+					setParameterFloat(stripA1[4], dVect[28]);
+					setParameterFloat(stripA1[6], dVect[33]);
+					setParameterFloat(stripA2[0], dVect[17]); //A2
+					setParameterFloat(stripA2[3], dVect[22]);
+					setParameterFloat(stripA2[4], dVect[27]);
+					setParameterFloat(stripA2[6], dVect[32]);
+					setParameterFloat(stripA3[0], dVect[16]); //A3
+					setParameterFloat(stripA3[3], dVect[21]);
+					setParameterFloat(stripA3[4], dVect[26]);
+					setParameterFloat(stripA3[6], dVect[31]);
+					setParameterFloat(stripA4[0], dVect[15]); //A4
+					setParameterFloat(stripA4[3], dVect[20]);
+					setParameterFloat(stripA4[4], dVect[25]);
+					setParameterFloat(stripA4[6], dVect[30]);
+					setParameterFloat(stripA5[0], dVect[14]); //A5
+					setParameterFloat(stripA5[3], dVect[19]);
+					setParameterFloat(stripA5[4], dVect[24]);
+					setParameterFloat(stripA5[6], dVect[29]);
+
+					setParameterFloat(busGain[0], dVect[12]);
+					setParameterFloat(busGain[2], dVect[13]);
 				}
 			}
 			catch (...)
 			{
 				cerr << "Error setting parameters\n";
-			}*/
+			}
 			dVect.clear();
 		}
 		else

@@ -166,6 +166,7 @@
     <ClCompile Include="win.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="properties.h" />
     <ClInclude Include="serial.h" />
     <ClInclude Include="SerialPort.hpp" />
     <ClInclude Include="v8stdint.h" />
