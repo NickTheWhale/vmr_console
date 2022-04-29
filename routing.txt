@@ -17,3 +17,5 @@ Strip[0].A2:17;
 Strip[3].A2:22;
 Strip[4].A2:27;
 Strip[6].A2:32;
+Bus[0].Mute:34;
+Bus[2].Mute:18;
