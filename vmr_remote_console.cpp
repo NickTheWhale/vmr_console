@@ -45,6 +45,8 @@ using std::ofstream;
 using std::ifstream;
 using std::fstream;
 using std::getline;
+using std::stof;
+using std::stoi;
 
 /*******************************************************************************/
 /**                           GET VOICEMEETER DIRECTORY                       **/
@@ -330,7 +332,6 @@ string getData()
 {
 	if (arduino->inputBufferSize() > DATA_LENGTH)
 	{
-		cout << "num of bytes: " << arduino->inputBufferSize() << endl;
 		arduino->flushInputBuffer();
 		return "";
 	}
@@ -383,12 +384,14 @@ int getRouting()
 		cout << "Successfully opened routing.txt" << endl;
 		while (getline(routingFile, line))
 		{
-			cout << line << endl;
-			for (int i = 0; i < line.size(); i++)
+			if (line.find("//") == string::npos && line.find("#") == string::npos)
 			{
-				routing[lineNum][i] = (char)line[i];
+				for (int i = 0; i <= line.find(";"); i++)
+				{
+					routing[lineNum][i] = (char)line[i];
+				}
+				lineNum++;
 			}
-			lineNum++;
 		}
 	}
 	else
@@ -399,23 +402,15 @@ int getRouting()
 	return lineNum;
 }
 
-int getParameters()
+int getParameterNames(int lineCount)
 {
 	int col;
 	int row;
 	int valueIndex;
-	int lineCount;
 	char routeChar;
-	char param[128][64] = {};
-	char valueBuffer[64] = {};
 	string line;
 
 	ifstream routingFile("routing.txt");
-	lineCount = 0;
-	while (getline(routingFile, line))
-	{
-		lineCount++;
-	}
 
 	col = 0;
 	row = 0;
@@ -423,29 +418,29 @@ int getParameters()
 	{
 		col = 0;
 		routeChar = routing[row][col];
-		while (routeChar != '/')
+		//get parameter string
+		while (routeChar != ':')
 		{
-			param[row][col] = routeChar;
+			paramNames[row][col] = routeChar;
 			col++;
 			routeChar = routing[row][col];
 		}
 		col++;
 		routeChar = routing[row][col];
 		valueIndex = 0;
+		//get control index
 		while (routeChar != ';')
 		{
-			valueBuffer[valueIndex] = routeChar;
+			control[row][valueIndex] = routeChar;
 			col++;
 			valueIndex++;
 			routeChar = routing[row][col];
 		}
-		cout << param[row] << " , " << valueBuffer << endl;
+		//cout << param[row] << " , " << stof(controlBuffer[row]) << endl;
 		row = i;
 	}
-	cout << endl << endl;
-	Sleep(500);
-	
-	return 0;
+
+	return lineCount;
 }
 
 int validateRouting()
@@ -454,7 +449,7 @@ int validateRouting()
 	return 0;
 }
 
-int updateVMR()
+int updateVMR(int lineCount)
 {
 	string dString = getData();
 	int dataSize = dString.size();
@@ -464,10 +459,6 @@ int updateVMR()
 		vector<float>dVect;
 		string dCopy;
 		string dBuff;
-		int i;
-		char routeChar;
-	    char param[128][64] = {};
-		float paramVal;
 		
 		int comma = dString.find(",");
 		while (comma != string::npos)
@@ -481,7 +472,10 @@ int updateVMR()
 
 		try
 		{
-			//set vmr
+			for (int i = 0; i < lineCount; i++)
+			{
+				setParameterFloat(paramNames[i], dVect[stoi(control[i])]);
+			}
 		}
 		catch (...)
 		{
@@ -494,6 +488,18 @@ int updateVMR()
 		Sleep(1);
 	}
 	return 0;
+}
+
+int isParamDirty()
+{
+	return iVMR.VBVMR_IsParametersDirty();
+}
+
+float getParameterStates(int index)
+{
+	float pVal = 0;
+	iVMR.VBVMR_GetParameterFloat(paramNames[index], &pVal);
+	return pVal;
 }
 
 void run()
@@ -601,7 +607,8 @@ int main()
 	enumerate_ports();
 	cout << endl;
 
-	getRouting();
+	int lineCount = getRouting();
+	getParameterNames(lineCount);
 
 	if (initVoicemeeter())
 	{
@@ -616,7 +623,15 @@ int main()
 			//run();
 			while (1)
 			{
-				getParameters();
+				updateVMR(lineCount);
+				if (isParamDirty())
+				{
+					for (int i = 0; i < lineCount; i++)
+					{
+						cout << getParameterStates(i);
+					}
+					cout << endl;
+				}
 				Sleep(1);
 			}
 		}

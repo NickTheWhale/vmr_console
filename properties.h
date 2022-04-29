@@ -7,6 +7,9 @@
 
 char routing[128][64]{};
 
+char paramNames[128][48]{};
+
+char control[128][8]{};
 
 /************************************************/
 /**                Strip properties            **/
