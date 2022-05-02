@@ -502,6 +502,99 @@ float getParameterStates(int index)
 	return pVal;
 }
 
+void run()
+{
+	vector<float>dVect;
+	string dCopy;
+
+	while (1)
+	{
+		string dString = getData();
+		int dataSize = dString.size();
+
+		if (dataSize > 0)
+		{
+			int comma = dString.find(",");
+			string dBuff;
+			while (comma != string::npos)
+			{
+				dBuff = dString.substr(0, comma);
+				dVect.push_back(stof(dBuff));
+				dString.erase(0, comma + 1);
+				comma = dString.find(",");
+			}
+			dVect.push_back(stoi(dString));
+
+			/*for (int i = 36; i < dVect.size(); i++)
+			{
+				cout << "[" << dVect[i] << "," << i << "]";
+			}
+			cout << endl;*/
+			/*input1.A1 = dVect[18];
+			input1.A2 = dVect[17];
+			input1.A3 = dVect[16];
+			input1.A4 = dVect[15];
+			input1.A5 = dVect[14];
+			input2.A1 = dVect[23];
+			input2.A2 = dVect[22];
+			input2.A3 = dVect[21];
+			input2.A4 = dVect[20];
+			input2.A5 = dVect[19];
+			inputType s;
+			s = storeData();
+			cout << s.A1 << endl;*/
+			try
+			{
+				/*for (int i = 0; i < 6; i++)
+				{
+					setParameterFloat(strips[i], dVect[i + 8]);
+				}*/
+				{
+					//strip gains
+					setParameterFloat(stripGain[0], dVect[8]);
+					setParameterFloat(stripGain[3], dVect[9]);
+					setParameterFloat(stripGain[4], dVect[10]);
+					setParameterFloat(stripGain[6], dVect[11]);
+
+					//strip sends
+					setParameterFloat(stripA1[0], dVect[18]); //A1
+					setParameterFloat(stripA1[3], dVect[23]);
+					setParameterFloat(stripA1[4], dVect[28]);
+					setParameterFloat(stripA1[6], dVect[33]);
+					setParameterFloat(stripA2[0], dVect[17]); //A2
+					setParameterFloat(stripA2[3], dVect[22]);
+					setParameterFloat(stripA2[4], dVect[27]);
+					setParameterFloat(stripA2[6], dVect[32]);
+					setParameterFloat(stripA3[0], dVect[16]); //A3
+					setParameterFloat(stripA3[3], dVect[21]);
+					setParameterFloat(stripA3[4], dVect[26]);
+					setParameterFloat(stripA3[6], dVect[31]);
+					setParameterFloat(stripA4[0], dVect[15]); //A4
+					setParameterFloat(stripA4[3], dVect[20]);
+					setParameterFloat(stripA4[4], dVect[25]);
+					setParameterFloat(stripA4[6], dVect[30]);
+					setParameterFloat(stripA5[0], dVect[14]); //A5
+					setParameterFloat(stripA5[3], dVect[19]);
+					setParameterFloat(stripA5[4], dVect[24]);
+					setParameterFloat(stripA5[6], dVect[29]);
+
+					setParameterFloat(busGain[0], dVect[12]);
+					setParameterFloat(busGain[2], dVect[13]);
+				}
+			}
+			catch (...)
+			{
+				cerr << "Error setting parameters\n";
+			}
+			dVect.clear();
+		}
+		else
+		{
+			Sleep(1);
+		}
+	}
+}
+
 /*******************************************************************************/
 /**                                    MAIN                                   **/
 /*******************************************************************************/
@@ -510,7 +603,7 @@ float getParameterStates(int index)
 int main()
 {
 	cout << "Voicemeeter remote\n";
-	cout << "Avaliable ports:\n\n";
+	cout << "Avaliable ports\n\n";
 	enumerate_ports();
 	cout << endl;
 
@@ -527,24 +620,18 @@ int main()
 				cerr << "Failed to clear input serial buffer\n";
 			}
 			cout << "Communication established with Arduino\n";
-
+			//run();
 			while (1)
 			{
 				updateVMR(lineCount);
-
-				if (isParamDirty() == 1)
+				if (isParamDirty())
 				{
 					for (int i = 0; i < lineCount; i++)
 					{
-						paramStates[i] = getParameterStates(i);
-					}
-					for (int i = 0; i < lineCount; i++)
-					{
-						cout << paramStates[i];
+						cout << getParameterStates(i);
 					}
 					cout << endl;
 				}
-
 				Sleep(1);
 			}
 		}
