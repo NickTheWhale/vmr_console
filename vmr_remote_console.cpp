@@ -33,7 +33,6 @@
 
 const char* portName = "\\\\.\\COM38";
 
-// Declare a global object
 SerialPort* arduino;
 
 using std::cerr;
