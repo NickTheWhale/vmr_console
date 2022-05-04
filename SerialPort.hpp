@@ -7,11 +7,13 @@
 
 #pragma once
 
-#define ARDUINO_WAIT_TIME 1000
-#define MAX_DATA_LENGTH 255
+#define ARDUINO_WAIT_TIME 10
+#define MAX_DATA_LENGTH 1023
 
 #include <windows.h>
 #include <iostream>
+#include <stdio.h>
+#include <string>
 
 class SerialPort
 {
